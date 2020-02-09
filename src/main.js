@@ -1,11 +1,21 @@
 import '../css/style.scss';
-import { RamdaArray } from './ramda-array';
+import { Serializable } from './serializable';
 
-const arr = new RamdaArray(1, 2, 3, 3, 4, 5, 6, 6, 6);
-console.log(arr);
+class Plane extends Serializable {
+    constructor() {
+        super();
+        this.jetEngines = 4;
+        this.fuel = {
+            kerosine: 96,
+            alcohol: 4,
+            left: 83
+        };
+    }
+    fly() {
+        console.log('flying');
+    }
+}
 
-const unique = arr.unique();
-console.log(unique);
-
-const filtered = unique.filter(x => x % 2 === 0);
-console.log(filtered);
+const p = new Plane();
+const text = p.serialize();
+console.log(`serialized: ${text}`);
