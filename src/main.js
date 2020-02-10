@@ -14,8 +14,19 @@ class Plane extends Serializable {
     fly() {
         console.log('flying');
     }
+    toString() {
+        const toKeyValue = obj => Object.entries(obj)
+            .map(([key, value]) => typeof value === 'object'
+                ? `key: "${key}", value: "${toKeyValue(value)}"`
+                : `key: "${key}", value: "${value}"`)
+            .join('\n');
+        return toKeyValue(this);
+    }
 }
 
 const p = new Plane();
 const text = p.serialize();
 console.log(`serialized: ${text}`);
+
+const newPlane = p.deserialize(text);
+console.log(`new Plane: ${newPlane}`);
