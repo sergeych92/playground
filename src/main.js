@@ -1,32 +1,50 @@
 import '../css/style.scss';
 import { Serializable } from './serializable';
+import { Debuggable } from './debuggable';
+import { mixin } from './mixin';
 
-class Plane extends Serializable {
+class Vehicle extends mixin(Debuggable, Serializable) {
     constructor() {
         super();
-        this.jetEngines = 4;
-        this.fuel = {
-            kerosine: 96,
-            alcohol: 4,
-            left: 83
-        };
+        this._name = 'car';
+        this.weight = 1.34;
     }
-    fly() {
-        console.log('flying');
-    }
-    toString() {
-        const toKeyValue = obj => Object.entries(obj)
-            .map(([key, value]) => typeof value === 'object'
-                ? `key: "${key}", value: "${toKeyValue(value)}"`
-                : `key: "${key}", value: "${value}"`)
-            .join('\n');
-        return toKeyValue(this);
+
+    move() {
+        console.log('Vehicle is moving');
     }
 }
 
-const p = new Plane();
-const text = p.serialize();
+const v = new Vehicle();
+console.log(`Vehicle: ${v}`);
+
+v.weight = 2.2;
+const text = v.serialize();
 console.log(`serialized: ${text}`);
 
-const newPlane = p.deserialize(text);
-console.log(`new Plane: ${newPlane}`);
+const restored = v.deserialize(text);
+console.log(`restored: ${restored}`);
+
+
+// class Plane extends Vehicle {
+//     constructor() {
+//         super();
+//         this.jetEngines = 4;
+//         this.fuel = {
+//             kerosine: 96,
+//             alcohol: 4,
+//             left: 83
+//         };
+//     }
+
+//     move() {
+//         console.log('Plane is flying');
+//     }
+// }
+
+// const p = new Plane();
+// const text = p.serialize();
+// console.log(`serialized: ${text}`);
+
+// const newPlane = p.deserialize(text);
+// console.log(`new Plane: ${newPlane}`);
