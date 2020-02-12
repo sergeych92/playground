@@ -1,11 +1,10 @@
 import '../css/style.scss';
 import { Serializable } from './serializable';
 import { Debuggable } from './debuggable';
-import { mixin } from './mixin';
+import { extendWithMixins } from './mixin';
 
-class Vehicle extends mixin(Debuggable, Serializable) {
+class Vehicle {
     constructor() {
-        super();
         this._name = 'car';
         this.weight = 1.34;
     }
@@ -15,36 +14,40 @@ class Vehicle extends mixin(Debuggable, Serializable) {
     }
 }
 
-const v = new Vehicle();
-console.log(`Vehicle: ${v}`);
+// const v = new Vehicle();
+// console.log(`Vehicle: ${v}`);
 
-v.weight = 2.2;
-const text = v.serialize();
-console.log(`serialized: ${text}`);
-
-const restored = v.deserialize(text);
-console.log(`restored: ${restored}`);
-
-
-// class Plane extends Vehicle {
-//     constructor() {
-//         super();
-//         this.jetEngines = 4;
-//         this.fuel = {
-//             kerosine: 96,
-//             alcohol: 4,
-//             left: 83
-//         };
-//     }
-
-//     move() {
-//         console.log('Plane is flying');
-//     }
-// }
-
-// const p = new Plane();
-// const text = p.serialize();
+// v.weight = 2.2;
+// const text = v.serialize();
 // console.log(`serialized: ${text}`);
 
-// const newPlane = p.deserialize(text);
-// console.log(`new Plane: ${newPlane}`);
+// const restored = v.deserialize(text);
+// console.log(`restored: ${restored}`);
+
+
+class Plane extends Vehicle {
+    constructor() {
+        super();
+        this.jetEngines = 4;
+        this.fuel = {
+            kerosine: 96,
+            alcohol: 4,
+            left: 83
+        };
+    }
+
+    move() {
+        console.log('Plane is flying');
+    }
+}
+
+extendWithMixins(Plane, Debuggable, Serializable);
+
+const p = new Plane();
+console.log(`Plane: ${p}`);
+
+const text = p.serialize();
+console.log(`serialized: ${text}`);
+
+const newPlane = p.deserialize(text);
+console.log(`new Plane: ${newPlane}`);

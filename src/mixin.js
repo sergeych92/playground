@@ -1,5 +1,4 @@
-export function mixin(...classes) {
-    const combinedClass = function() {};
+function defineMixinMethods(target, classes) {
     for (let cl of classes) {
         // Avoid overwriting properties with the same name by setting configurable: false for all added functions
         const descriptors = Object.getOwnPropertyDescriptors(cl.prototype);
@@ -12,8 +11,17 @@ export function mixin(...classes) {
                     : {...value, configurable: false} // data accessor
             ]);
         const asObj = Object.fromEntries(asArray);
-        Object.defineProperties(combinedClass.prototype, asObj);
+        Object.defineProperties(target, asObj);
     }
+}
+
+export function getCombinedMixins(...classes) {
+    const combinedClass = function() {};
+    defineMixinMethods(combinedClass.prototype, classes);
     Object.defineProperty(combinedClass.prototype, 'constructor', {value: combinedClass});
     return combinedClass;
+}
+
+export function extendWithMixins(target, ...mixins) {
+    defineMixinMethods(target.prototype, mixins);
 }
