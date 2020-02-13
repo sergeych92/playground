@@ -1,56 +1,38 @@
 import '../css/style.scss';
-import { Serializable } from './serializable';
-import { Debuggable } from './debuggable';
-import { extendWithMixins } from './mixin';
+import { deepClone } from './deep-clone';
 
-class Vehicle {
-    constructor() {
-        this._name = 'car';
-        this.weight = 1.34;
+const age = Symbol('age');
+const obj = {
+    _name: 'Alice Cooper',
+    [age]: 39,
+    height: 184,
+    sex: 'male',
+    weight: 78,
+    wife: null,
+    husband: undefined,
+    vegeterian: Boolean(true),
+    vegan: false,
+    groceries: [
+        {name: 'Potatoes', weight: 2},
+        {name: 'Sneakers', amount: 12},
+        {name: 'Crisps', amount: 2}
+    ],
+    skills: {
+        painting: 7,
+        singing: 8,
+        math: 2,
+        driving: {
+            car: 5,
+            bike: 10
+        }
+    },
+    get name() { return this._name},
+    sayHi() {
+        console.log(`Hi, my name is ${this.name}. I'm a ${this.height}cm ${this.sex} who weighs ${this.weight}kg.`);
     }
+};
+Object.defineProperty(obj, 'deadName', {value: 'Ashley Weed'});
 
-    move() {
-        console.log('Vehicle is moving');
-    }
-}
+obj.sayHi();
 
-// const v = new Vehicle();
-// console.log(`Vehicle: ${v}`);
-
-// v.weight = 2.2;
-// const text = v.serialize();
-// console.log(`serialized: ${text}`);
-
-// const restored = v.deserialize(text);
-// console.log(`restored: ${restored}`);
-
-
-class Plane extends Vehicle {
-    constructor() {
-        super();
-        this.jetEngines = 4;
-        this.fuel = {
-            kerosine: 96,
-            alcohol: 4,
-            left: 83
-        };
-    }
-
-    move() {
-        console.log('Plane is flying');
-    }
-}
-
-extendWithMixins(Plane, Debuggable, Serializable);
-
-const p = new Plane();
-console.log(`Plane: ${p}`);
-
-const text = p.serialize();
-console.log(`serialized: ${text}`);
-
-const newPlane = p.deserialize(text);
-console.log(`new Plane: ${newPlane}`);
-
-newPlane.move();
-console.log(`Name: ${newPlane.name}`);
+// const copy = deepClone(obj);
