@@ -51,3 +51,6 @@ console.log(`serialized: ${text}`);
 
 const newPlane = p.deserialize(text);
 console.log(`new Plane: ${newPlane}`);
+
+newPlane.move();
+console.log(`Name: ${newPlane.name}`);
