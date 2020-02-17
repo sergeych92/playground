@@ -15,15 +15,20 @@ export function deepClone(target) {
                 throw new CloneError('The object being cloned does not have a constructor.', target);
             }
             return new target.constructor(target);
-        } else if (Object.getPrototypeOf(value) === Object.prototype && value.constructor === Object) { // Plain obj
+        } else if (Object.getPrototypeOf(target) === Object.prototype && target.constructor === Object) { // Plain obj
             const copy = Object.create(Object.getPrototypeOf(target));
             // TODO: clone the entire prototype chain up to Object.prototype?
-            for (let [key, description] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
+            const descriptors = Object.getOwnPropertyDescriptors(target);
+            const pairs = [
+                ...Object.getOwnPropertyNames(descriptors),
+                ...Object.getOwnPropertySymbols(descriptors)
+            ].map(n => [n, descriptors[n]]);
+            for (let [key, description] of pairs) {
                 const {value} = description;
                 // TODO: Check that the object doesn't point to any globals, such as Window, Function.prototype, etc
                 // TODO: Check that there is no cycles
                 if (value) {
-                    Object.defineProperty(copy, key, {...description, deepClone(value)});
+                    Object.defineProperty(copy, key, {...description, value: deepClone(value)});
                 } else {
                     // Either a data accessor or (null or undefined)
                     Object.defineProperty(copy, key, description);

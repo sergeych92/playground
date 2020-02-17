@@ -33,6 +33,5 @@ const obj = {
 };
 Object.defineProperty(obj, 'deadName', {value: 'Ashley Weed'});
 
-obj.sayHi();
-
-// const copy = deepClone(obj);
+const copy = deepClone(obj);
+console.log(copy);
