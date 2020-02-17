@@ -1,4 +1,4 @@
-import { deepClone } from "./deep-clone";
+import { deepClone, CloneError } from "./deep-clone";
 
 test('Primitives', () => {
     expect(true).toEqual(deepClone(true));
@@ -63,7 +63,7 @@ test('Composite object', () => {
         },
         get name() { return this._name},
         sayHi() {
-            console.log(`Hi, my name is ${this.name}. I'm a ${this.height}cm ${this.sex} who weighs ${this.weight}kg.`);
+            return `Hi, my name is ${this.name}. I'm a ${this.height}cm ${this.sex} who weighs ${this.weight}kg.`;
         }
     };
     Object.defineProperty(obj, 'deadName', {value: 'Ashley Weed'});
@@ -76,4 +76,17 @@ test('Composite object', () => {
     expect(obj.skills.driving).not.toBe(copy.skills.driving);
     expect(obj.groceries).not.toBe(copy.groceries);
     expect(obj.groceries[0]).not.toBe(copy.groceries[0]);
+    expect(obj.sayHi()).toEqual(copy.sayHi());
+    expect(obj.name).toEqual(copy.name);
+});
+
+test('Check cloning cycles', () => {
+    const a = {one: 1};
+    const b = {two: 2};
+    const c = {three: 3};
+    a.link = b;
+    b.link = c;
+    c.link = a;
+
+    expect(() => deepClone(a)).toThrow('The object contains a cycle.');
 });
