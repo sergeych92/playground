@@ -1,15 +1,17 @@
-const GLOBAL_OBJECTS = [
-    Window, Document, DocumentFragment, Node, Function.prototype, Object.prototype, Number.prototype
-];
+const GLOBAL_OBJECTS = [window, Window, document, body, Document, DocumentFragment];
+const COMMON_CLASSES = [Function, Object, Number, Boolean, Date, String];
 
 export class CloneError extends Error {
-    constructor(msg, objRef) {
+    constructor(msg, objRef, errRef) {
         super(msg);
+        this.objRef = objRef;
+        this.errRef = errRef;
     }
 }
 
 export function deepClone(target) {
     const visited = new Set();
+    // TODO: keep track of the original to clone map for each object in order to recreate cycles
     return deepCloneInternal(target, visited);
 }
 
@@ -19,20 +21,43 @@ function deepCloneInternal(target, visited) {
             return target;
         } else if (Array.isArray(target)) {
             return target.map(v => deepCloneInternal(v, visited));
-        } else if ([Boolean, Number, Date, Set, Map, String].some(type => target instanceof type)) {
+        } else if ([Boolean, Number, Date, String, Set].some(type => target instanceof type)) {
             if (!target.hasOwnProperty('constructor')) {
                 throw new CloneError('The object being cloned does not have a constructor.', target);
             }
             return new target.constructor(target);
-            // TODO: check for a clone method that an object may provide to help clone it (esp if it's a class)
-        } else if (Object.getPrototypeOf(target) === Object.prototype && target.constructor === Object) { // Plain obj
+        } else if (target instanceof Map) {
+            return new Map(
+                [...target].map(([key, value]) => [key, deepCloneInternal(value)])
+            );
+        } else if (target instanceof Node) {
+            throw new CloneError('Cloning document nodes is not allowed', target);
+        } else if (GLOBAL_OBJECTS.includes(target)
+            || COMMON_CLASSES.includes(target)
+            || COMMON_CLASSES.some(cl => cl.prototype === target)) {
+            return target; // Skip cloning built-ins and globals
+        } else {
+            if (target.clone) {
+                return target.clone();
+            }
+
             // Check that there is no cycles
             if (visited.has(target)) {
                 throw new CloneError('The object contains a cycle.', target);
             }
             visited.add(target);
 
-            const copy = Object.create(Object.getPrototypeOf(target));
+            let copy;
+            if (Object.getPrototypeOf(target) === Object.prototype && target.constructor === Object) { // Plain obj
+                copy = Object.create(Object.getPrototypeOf(target));
+            } else { // Object that was constructred by a class
+                try {
+                    copy = new target.constructor();
+                } catch (err) {
+                    throw new CloneError('An error while calling an object constructor', target, err);
+                }
+            }
+
             // TODO: clone the entire prototype chain up to Object.prototype?
             const descriptors = Object.getOwnPropertyDescriptors(target);
             const pairs = [
@@ -41,7 +66,6 @@ function deepCloneInternal(target, visited) {
             ].map(n => [n, descriptors[n]]);
             for (let [key, description] of pairs) {
                 const {value} = description;
-                // TODO: Check that the object doesn't point to any globals, such as Window, Function.prototype, etc
                 if (value) {
                     Object.defineProperty(copy, key, {...description, value: deepCloneInternal(value, visited)});
                 } else {
@@ -49,9 +73,9 @@ function deepCloneInternal(target, visited) {
                     Object.defineProperty(copy, key, description);
                 }
             }
+
+            visited.delete(target);
             return copy;
-        } else {
-            throw new CloneError('This object type is not supported', target);
         }
     } else {
         // Null or undefined.

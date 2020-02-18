@@ -80,7 +80,7 @@ test('Composite object', () => {
     expect(obj.name).toEqual(copy.name);
 });
 
-test('Check cloning cycles', () => {
+test('Check for cycles while cloning', () => {
     const a = {one: 1};
     const b = {two: 2};
     const c = {three: 3};
@@ -89,4 +89,27 @@ test('Check cloning cycles', () => {
     c.link = a;
 
     expect(() => deepClone(a)).toThrow('The object contains a cycle.');
+});
+
+test('Clone objects with a clone method: cannot copy an object error', () => {
+    class PalmTree {
+        constructor(height) {
+            this.height = height;
+            this.width = 1;
+        }
+
+        showSummary() {
+            return `A ${this.height}foot tall tree with a diameter of ${this.width}inches.`;
+        }
+    }
+
+    const palmTree = new PalmTree(11);
+    const obj = {
+        prop1: {
+            a: 1,
+            b: 2,
+            palmTree
+        }
+    };
+    const copy = deepClone(obj);
 });
