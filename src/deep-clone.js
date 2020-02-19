@@ -9,18 +9,58 @@ export class CloneError extends Error {
     }
 }
 
+/*
+    Cycle examples:
+
+    const obj = {
+        children: [{x: 1}]
+    };
+    obj.children.push(obj);
+
+
+    const obj = {
+        children: new Map(['first', {x: 1}])
+    };
+    obj.children.set('self', obj);
+
+
+    const simple = {x: 1};
+    const obj = {
+        first: simple,
+        second: simple,
+        thid: simple
+    };
+
+
+    const obj = {
+        one: {x: 1}
+    };
+    obj.two = obj;
+
+
+    const obj = {
+        one: {x: 1},
+        two: {x: 2}
+    };
+    obj.one.link = obj.two;
+    obj.two.link = obj.one;
+*/
+
+const cycleToken = Symbol('cycle');
+
 export function deepClone(target) {
-    const visited = new Set();
-    // TODO: keep track of the original to clone map for each object in order to recreate cycles
-    return deepCloneInternal(target, visited);
+    const links = new Map();
+    const copy = deepCloneInternal(target, links);
+    // TODO: update cyclical links to the parent
+    return copy;
 }
 
-function deepCloneInternal(target, visited) {
+function deepCloneInternal(target, links, key = null, parent = null) {
     if (target) {
         if (['number', 'boolean', 'string', 'function', 'symbol'].includes(typeof target)) {
             return target;
         } else if (Array.isArray(target)) {
-            return target.map(v => deepCloneInternal(v, visited));
+            return target.map(v => deepCloneInternal(v, links));
         } else if ([Boolean, Number, Date, String, Set].some(type => target instanceof type)) {
             if (!target.hasOwnProperty('constructor')) {
                 throw new CloneError('The object being cloned does not have a constructor.', target);
@@ -36,16 +76,15 @@ function deepCloneInternal(target, visited) {
             || COMMON_CLASSES.includes(target)
             || COMMON_CLASSES.some(cl => cl.prototype === target)) {
             return target; // Skip cloning built-ins and globals
-        } else {
+        } else { // An object with properties to clone
             if (target.clone) {
                 return target.clone();
             }
 
-            // Check that there is no cycles
-            if (visited.has(target)) {
-                throw new CloneError('The object contains a cycle.', target);
+            // If target is a cycle, return an info token
+            if (links.has(target)) {
+                return cycleToken;
             }
-            visited.add(target);
 
             let copy;
             if (Object.getPrototypeOf(target) === Object.prototype && target.constructor === Object) { // Plain obj
@@ -67,14 +106,14 @@ function deepCloneInternal(target, visited) {
             for (let [key, description] of pairs) {
                 const {value} = description;
                 if (value) {
-                    Object.defineProperty(copy, key, {...description, value: deepCloneInternal(value, visited)});
+                    Object.defineProperty(copy, key, {...description, value: deepCloneInternal(value, links, key, target)});
                 } else {
                     // Either a data accessor or (null or undefined)
                     Object.defineProperty(copy, key, description);
                 }
             }
 
-            visited.delete(target);
+            links.delete(target);
             return copy;
         }
     } else {
