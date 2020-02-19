@@ -1,4 +1,4 @@
-const GLOBAL_OBJECTS = [window, Window, document, body, Document, DocumentFragment];
+const GLOBAL_OBJECTS = [window, Window, document, Document, DocumentFragment];
 const COMMON_CLASSES = [Function, Object, Number, Boolean, Date, String];
 
 export class CloneError extends Error {
@@ -11,6 +11,9 @@ export class CloneError extends Error {
 
 /*
     Cycle examples:
+
+    const obj = {};
+    obj.link = obj;
 
     const obj = {
         children: [{x: 1}]
@@ -44,18 +47,22 @@ export class CloneError extends Error {
     };
     obj.one.link = obj.two;
     obj.two.link = obj.one;
-*/
 
-const cycleToken = Symbol('cycle');
+    
+    const a = {x: 1};
+    const b = {x: 2};
+    const c = {x: 3};
+    a.link = b;
+    b.link = c;
+    c.link = a;
+*/
 
 export function deepClone(target) {
     const links = new Map();
-    const copy = deepCloneInternal(target, links);
-    // TODO: update cyclical links to the parent
-    return copy;
+    return deepCloneInternal(target, links);
 }
 
-function deepCloneInternal(target, links, key = null, parent = null) {
+function deepCloneInternal(target, links) {
     if (target) {
         if (['number', 'boolean', 'string', 'function', 'symbol'].includes(typeof target)) {
             return target;
@@ -81,9 +88,9 @@ function deepCloneInternal(target, links, key = null, parent = null) {
                 return target.clone();
             }
 
-            // If target is a cycle, return an info token
+            // Check for a cycle
             if (links.has(target)) {
-                return cycleToken;
+                return links.get(target);
             }
 
             let copy;
@@ -97,6 +104,8 @@ function deepCloneInternal(target, links, key = null, parent = null) {
                 }
             }
 
+            links.set(target, copy);
+
             // TODO: clone the entire prototype chain up to Object.prototype?
             const descriptors = Object.getOwnPropertyDescriptors(target);
             const pairs = [
@@ -106,14 +115,13 @@ function deepCloneInternal(target, links, key = null, parent = null) {
             for (let [key, description] of pairs) {
                 const {value} = description;
                 if (value) {
-                    Object.defineProperty(copy, key, {...description, value: deepCloneInternal(value, links, key, target)});
+                    Object.defineProperty(copy, key, {...description, value: deepCloneInternal(value, links)});
                 } else {
                     // Either a data accessor or (null or undefined)
                     Object.defineProperty(copy, key, description);
                 }
             }
 
-            links.delete(target);
             return copy;
         }
     } else {

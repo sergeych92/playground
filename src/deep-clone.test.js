@@ -80,7 +80,7 @@ test('Composite object', () => {
     expect(obj.name).toEqual(copy.name);
 });
 
-test('Check for cycles while cloning', () => {
+test('Cycle: a => b => c => a', () => {
     const a = {one: 1};
     const b = {two: 2};
     const c = {three: 3};
@@ -88,10 +88,41 @@ test('Check for cycles while cloning', () => {
     b.link = c;
     c.link = a;
 
-    expect(() => deepClone(a)).toThrow('The object contains a cycle.');
+    const copy = deepClone(a);
+    expect(a).toEqual(copy);
+    expect(copy).toBe(copy.link.link.link);
+
+    expect(a).not.toBe(copy);
+    expect(a.link).not.toBe(copy.link);
+    expect(a.link.link).not.toBe(copy.link.link);
 });
 
-test('Clone objects with a clone method: cannot copy an object error', () => {
+test('Cycle: a => a', () => {
+    const obj = {};
+    obj.link = obj;
+
+    const copy = deepClone(obj);
+    expect(copy.link).toBe(copy);
+    expect(obj).toEqual(copy);
+    expect(obj).not.toBe(copy);
+    expect(obj.link).not.toBe(copy.link);
+});
+
+test('Cycle: a => [a, {a}]', () => {
+    const obj = {
+        children: [{x: 1}]
+    };
+    obj.children.push(obj);
+    obj.children.push({x:3, link: obj});
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect(obj).not.toBe(copy);
+    expect(copy.children[1]).toBe(copy);
+    expect(copy.children[2].link).toBe(copy);
+});
+
+test('Clone objects with a clone method', () => {
     class PalmTree {
         constructor(height) {
             this.height = height;
