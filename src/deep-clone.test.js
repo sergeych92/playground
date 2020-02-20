@@ -122,6 +122,115 @@ test('Cycle: a => [a, {a}]', () => {
     expect(copy.children[2].link).toBe(copy);
 });
 
+test('Cycle: a => new Map([key,a])', () => {
+    const obj = {
+        children: new Map([['first', {x: 1}]])
+    };
+    obj.children.set('self', obj);
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect([...obj.children]).toEqual([...copy.children]);
+    expect(obj).not.toBe(copy);
+    expect(obj.children.get('first')).not.toBe(copy.children.get('first'));
+    expect(obj.children.get('self')).not.toBe(copy.children.get('self'));
+    expect(copy.children.get('self')).toBe(copy);
+});
+
+test('Cycle: a => new Map([[a,ref1], [b,ref2]])', () => {
+    const ref = {y: 1};
+    const obj = {
+        children: new Map([[ref, {x: 1}]]),
+        link: ref
+    };
+    obj.children.set(obj, obj);
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect([...obj.children]).toEqual([...copy.children]);
+    expect(obj).not.toBe(copy);
+    expect(obj.link).not.toBe(copy.link);
+    expect(obj.children.get(obj.link)).not.toBe(copy.children.get(copy.link));
+    expect(copy.children.get(copy.link)).toEqual({x:1});
+    expect(copy.children.get(copy)).toBe(copy);
+});
+
+test('Reference: a => {a1: r, a2: r, a3: r}', () => {
+    const simple = {x: 1};
+    const obj = {
+        first: simple,
+        second: simple,
+        third: simple
+    };
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect(obj).not.toBe(copy);
+    expect(copy.first).toBe(copy.second);
+    expect(copy.second).toBe(copy.third);
+    expect(copy.first).not.toBe(obj.first);
+});
+
+test('Cycle & Reference: a => Set(b, c, a)', () => {
+    const link1 = {x: 1};
+    const link2 = {x: 2};
+    const obj = {
+        refs: new Set([link1, link2]),
+        link1,
+        link2
+    };
+    obj.refs.add(obj);
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect(obj).not.toBe(copy);
+    expect([...obj.refs]).toEqual([...copy.refs]);
+    expect(copy.refs.has(copy.link1)).toBeTruthy();
+    expect(copy.refs.has(copy.link2)).toBeTruthy();
+    expect(copy.refs.has(copy)).toBeTruthy();
+    expect(copy.link1).not.toBe(obj.link1);
+    expect(copy.link2).not.toBe(obj.link2);
+});
+
+test('Cycle: a => b => c => b', () => {
+    const obj = {
+        one: {x: 1},
+        two: {x: 2}
+    };
+    obj.one.link = obj.two;
+    obj.two.link = obj.one;
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect(copy.one).not.toBe(obj.one);
+    expect(copy.two).not.toBe(obj.two);
+    expect(copy.one.link).toBe(copy.two);
+    expect(copy.two.link).toBe(copy.one);
+});
+
+test('Cycle: a => b => c => a', () => {
+    const a = {x: 1};
+    const b = {x: 2};
+    const c = {x: 3};
+    a.link = b;
+    b.link = c;
+    c.link = a;
+    const obj = {a,b,c};
+
+    const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect(copy).not.toBe(obj);
+    expect(copy.a).not.toBe(obj.a);
+    expect(copy.b).not.toBe(obj.b);
+    expect(copy.c).not.toBe(obj.c);
+    expect(copy.a.link).toBe(copy.b);
+    expect(copy.a.link).not.toBe(b);
+    expect(copy.b.link).toBe(copy.c);
+    expect(copy.b.link).not.toBe(c);
+    expect(copy.c.link).toBe(copy.a);
+});
+
+
 test('Clone objects with a clone method', () => {
     class PalmTree {
         constructor(height) {

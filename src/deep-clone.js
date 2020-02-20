@@ -1,4 +1,3 @@
-const GLOBAL_OBJECTS = [window, Window, document, Document, DocumentFragment];
 const COMMON_CLASSES = [Function, Object, Number, Boolean, Date, String];
 
 export class CloneError extends Error {
@@ -8,54 +7,6 @@ export class CloneError extends Error {
         this.errRef = errRef;
     }
 }
-
-/*
-    Cycle examples:
-
-    const obj = {};
-    obj.link = obj;
-
-    const obj = {
-        children: [{x: 1}]
-    };
-    obj.children.push(obj);
-
-
-    const obj = {
-        children: new Map(['first', {x: 1}])
-    };
-    obj.children.set('self', obj);
-
-
-    const simple = {x: 1};
-    const obj = {
-        first: simple,
-        second: simple,
-        thid: simple
-    };
-
-
-    const obj = {
-        one: {x: 1}
-    };
-    obj.two = obj;
-
-
-    const obj = {
-        one: {x: 1},
-        two: {x: 2}
-    };
-    obj.one.link = obj.two;
-    obj.two.link = obj.one;
-
-    
-    const a = {x: 1};
-    const b = {x: 2};
-    const c = {x: 3};
-    a.link = b;
-    b.link = c;
-    c.link = a;
-*/
 
 export function deepClone(target) {
     const links = new Map();
@@ -68,20 +19,23 @@ function deepCloneInternal(target, links) {
             return target;
         } else if (Array.isArray(target)) {
             return target.map(v => deepCloneInternal(v, links));
-        } else if ([Boolean, Number, Date, String, Set].some(type => target instanceof type)) {
-            if (!target.hasOwnProperty('constructor')) {
-                throw new CloneError('The object being cloned does not have a constructor.', target);
+        } else if ([Boolean, Number, Date, String].some(type => target instanceof type)) {
+            try {
+                return new target.constructor(target);
+            } catch {
+                throw new CloneError('There was a problem creating an object by calling its constructor.', target);
             }
-            return new target.constructor(target);
         } else if (target instanceof Map) {
             return new Map(
-                [...target].map(([key, value]) => [key, deepCloneInternal(value)])
+                [...target].map(([key, value]) => [deepCloneInternal(key, links), deepCloneInternal(value, links)])
             );
-        } else if (target instanceof Node) {
-            throw new CloneError('Cloning document nodes is not allowed', target);
-        } else if (GLOBAL_OBJECTS.includes(target)
-            || COMMON_CLASSES.includes(target)
-            || COMMON_CLASSES.some(cl => cl.prototype === target)) {
+        } else if (target instanceof Set) {
+            return new Set(
+                [...target].map(v => deepCloneInternal(v, links))
+            );
+        } else if (target instanceof EventTarget) {
+            return target; // Don't clone nodes (Document, Window, any Element)
+        } else if (COMMON_CLASSES.includes(target) || COMMON_CLASSES.some(cl => cl.prototype === target)) {
             return target; // Skip cloning built-ins and globals
         } else { // An object with properties to clone
             if (target.clone) {
