@@ -232,6 +232,7 @@ test('Cycle: a => b => c => a', () => {
 
 
 test('Clone objects with a clone method', () => {
+    let cloneCalled = false;
     class PalmTree {
         constructor(height) {
             this.height = height;
@@ -240,6 +241,11 @@ test('Clone objects with a clone method', () => {
 
         showSummary() {
             return `A ${this.height}foot tall tree with a diameter of ${this.width}inches.`;
+        }
+
+        clone() {
+            cloneCalled = true;
+            return new PalmTree(this.height);
         }
     }
 
@@ -252,4 +258,21 @@ test('Clone objects with a clone method', () => {
         }
     };
     const copy = deepClone(obj);
+    expect(obj).toEqual(copy);
+    expect(cloneCalled).toBe(true);
+});
+
+test('Boolean, Number, Date, String', () => {
+    const obj = {
+        bTrue: new Boolean(true),
+        bFalse: new Boolean(false)
+    }
+});
+
+test('Object with a constructor', () => {
+
+});
+
+test('Links to globals', () => {
+
 });

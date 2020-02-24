@@ -1,37 +1,32 @@
 import '../css/style.scss';
-import { deepClone } from './deep-clone';
+import { Matrix } from './matrix-rotation';
 
-const age = Symbol('age');
-const obj = {
-    _name: 'Alice Cooper',
-    [age]: 39,
-    height: 184,
-    sex: 'male',
-    weight: 78,
-    wife: null,
-    husband: undefined,
-    vegeterian: Boolean(true),
-    vegan: false,
-    groceries: [
-        {name: 'Potatoes', weight: 2},
-        {name: 'Sneakers', amount: 12},
-        {name: 'Crisps', amount: 2}
-    ],
-    skills: {
-        painting: 7,
-        singing: 8,
-        math: 2,
-        driving: {
-            car: 5,
-            bike: 10
-        }
-    },
-    get name() { return this._name},
-    sayHi() {
-        console.log(`Hi, my name is ${this.name}. I'm a ${this.height}cm ${this.sex} who weighs ${this.weight}kg.`);
-    }
-};
-Object.defineProperty(obj, 'deadName', {value: 'Ashley Weed'});
+// const matrix = new Matrix([
+//     [1,2,3,4,5],
+//     [6,7,8,9,10],
+//     [11,12,13,14,15],
+//     [16,17,18,19,20],
+//     [21,22,23,24,25]
+// ]);
+// const matrix = new Matrix([
+//     [1,2,3,4,5, 6, 7],
+//     [8,9,10,11,12,13,14],
+//     [15,16,17,18,19,20,21],
+//     [22,23,24,25,26,27,28],
+//     [29,30,31,32,33,34,35],
+//     [36,37,38,39,40,41,42],
+//     [43,44,45,46,47,48,49]
+// ]);
+// const matrix = new Matrix([
+//     [1,2],
+//     [3,4]
+// ]);
+const matrix = new Matrix([
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+]);
+console.log(`Original:\n${matrix}`);
 
-const copy = deepClone(obj);
-console.log(copy);
+matrix.rotateRight();
+console.log(`Rotated clockwise:\n${matrix}`);
