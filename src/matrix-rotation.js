@@ -1,5 +1,57 @@
 export class MatrixOperationError extends Error {}
 
+export function rotateMatrixTricky(matrix) {
+    let n = matrix.length;
+    if(n <= 1)
+        return matrix;
+    
+    let tmp = 0;
+    /* transpose of a matrix */
+    for(let i=0;i<n;i++){
+        for(let j=i;j<n;j++){
+            tmp = matrix[j][i];
+            matrix[j][i] = matrix[i][j]
+            matrix[i][j] = tmp;
+        }
+    
+        /* swap columns */
+        for(let j=0;j<n/2;j++){
+            tmp = matrix[i][j];
+            matrix[i][j] = matrix[i][n-1-j]
+            matrix[i][n-1-j] = tmp;
+        }
+    }
+    return matrix;
+}
+
+export function rotateMatrixByLayer(matrix, layer = 0) {
+    if (matrix.length <= 1 || layer + layer + 2 > matrix.length) {
+        return matrix;
+    } else {
+        const side = matrix.length - 1;
+        const columnLeft = layer;
+        const columnRight = side - layer;
+        const rowTop = layer;
+        const rowBottom = side - layer;
+        for (let x = 0; x < columnRight - columnLeft; x++) {
+            [
+                matrix[rowTop][columnLeft + x],
+                matrix[rowTop + x][columnRight],
+                matrix[rowBottom][columnRight - x],
+                matrix[rowBottom - x][columnLeft]
+            ]
+            =
+            [
+                matrix[rowBottom - x][columnLeft],
+                matrix[rowTop][columnLeft + x],
+                matrix[rowTop + x][columnRight],
+                matrix[rowBottom][columnRight - x],
+            ];
+        }
+        return rotateMatrixByLayer(matrix, layer + 1);
+    }
+}
+
 export class Matrix {
     get side() { return this.rows.length - 1; }
     get size() { return this.rows.length; }
@@ -21,14 +73,15 @@ export class Matrix {
     }
 
     rotateRight() {
-        let depth = 0;
-        while (depth <= this.side) {
-            this._swapRowWithColumn(depth);
-            if (depth > 0) {
-                this._hoistHead(depth);
-            }
-            depth++;
-        }
+        // let depth = 0;
+        // while (depth <= this.side) {
+        //     this._swapRowWithColumn(depth);
+        //     if (depth > 0) {
+        //         this._hoistHead(depth);
+        //     }
+        //     depth++;
+        // }
+        return rotateMatrixByLayer(this.rows, 0);
     }
 
     toString() {
