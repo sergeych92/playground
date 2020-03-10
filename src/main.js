@@ -1,32 +1,24 @@
 import '../css/style.scss';
-import { Matrix } from './matrix-rotation';
 
-// const matrix = new Matrix([
-//     [1,2,3,4,5],
-//     [6,7,8,9,10],
-//     [11,12,13,14,15],
-//     [16,17,18,19,20],
-//     [21,22,23,24,25]
-// ]);
-// const matrix = new Matrix([
-//     [1,2,3,4,5, 6, 7],
-//     [8,9,10,11,12,13,14],
-//     [15,16,17,18,19,20,21],
-//     [22,23,24,25,26,27,28],
-//     [29,30,31,32,33,34,35],
-//     [36,37,38,39,40,41,42],
-//     [43,44,45,46,47,48,49]
-// ]);
-// const matrix = new Matrix([
-//     [1,2],
-//     [3,4]
-// ]);
-const matrix = new Matrix([
-    [1,2,3],
-    [4,5,6],
-    [7,8,9]
-]);
-console.log(`Original:\n${matrix}`);
+function showFloat(uint8a) {
+    const allButHead = ((1 << 7) - 1);
+    const sign = (uint8[3] & (1 << 7)) >> 7;
+    console.log(`sign: ${sign ? '-' : '+'}`);
 
-matrix.rotateRight();
-console.log(`Rotated clockwise:\n${matrix}`);
+    let powerEncoded = (uint8[3] << 1) | (uint8[2] >>> 7);
+    console.log(`power encoded: ${powerEncoded}, number: ${powerEncoded - allButHead}`);
+
+    let fraction = ((uint8[2] & allButHead) << 16) | (uint8[1] << 8) | uint8[0];
+    // TODO: calculate the number of leading zeros before, 1.__leading_zeros__1110101...0000
+    while (fraction !== 0 && (fraction & 1) === 0) {
+        fraction >>>= 1;
+    }
+    console.log(`fraction: 1.${fraction.toString(2)}`);
+}
+
+const mem = new ArrayBuffer(4);
+const float32 = new Float32Array(mem);
+const uint8 = new Uint8Array(mem);
+
+float32[0] = 1437;
+showFloat(uint8);
