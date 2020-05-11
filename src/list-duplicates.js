@@ -1,95 +1,273 @@
 export class LinkedList {
-    constructor(equals) {
-        this.head = Node.tail;
-        this.equals = typeof equals === 'function' ? equals : (a, b) => a === b;
-    }
 
-    add(data) {
-        this.head = new Node(this.head, data);
-    }
-
-    markDuplicates() {
-        let outer = this.head;
-        while (outer !== Node.tail) {
-            if (!outer.isMarked()) {
-                let inner = outer.next;
-                while (inner !== Node.tail) {
-                    if (!inner.isMarked() && this.equals(outer.data, inner.data)) {
-                        outer.mark();
-                        inner.mark();
-                    }
-                    inner = inner.next;
-                }
-            }
-            outer = outer.next;
-        }
-    }
-
-    showDuplicates() {
+    get length() {
+        let count = 0;
         let tracker = this.head;
-        while (tracker !== Node.tail) {
-            if (tracker.isMarked()) {
-                
+        while (tracker !== Node.end) {
+            count++;
+            tracker = tracker.next;
+        }
+        return count;
+    }
+
+    constructor() {
+        this.head = Node.end;
+        this.tail = Node.end;
+    }
+
+    addTail(data) {
+        if (Array.isArray(data)) {
+            for (let t of data) {
+                this._addTailOne(t);
             }
-            let ns = tracker.data + (tracker.isMarked() ? '(m)' : '');
-            ns.padEnd(3, ' ');
-            console.log(ns);
+        } else {
+            this._addTailOne(data);
+        }
+        return this;
+    }
+
+    addHead(data) {
+        if (this.head === Node.end) {
+            this.head = new Node(Node.end, data);
+            this.tail = this.head;
+        } else {
+            this.head = new Node(this.head, data);
+        }
+        return this;
+    }
+
+    getByIndex(index) {
+        let tracker = this.head;
+        while (tracker !== Node.end && index-- > 0) {
+            tracker = tracker.next;
+        }
+        return tracker;
+    }
+
+    partition(x) {
+        let tracker = this.head;
+        while (tracker !== Node.end && tracker.data < x) {
+            tracker = tracker.next;
+        }
+
+        while (tracker !== Node.end) {
+            if (tracker.data < x) {
+                this.head = new Node(this.head, tracker.data);
+                tracker.data = tracker.next.data;
+                tracker.next = tracker.next.next;
+            } else {
+                tracker = tracker.next;
+            }
+        }
+    }
+
+    isPalindrome() {
+        if (this.head === this.tail) {
+            return true;
+        }
+
+        let firstHalfStack = [];
+        let single = this.head;
+        let double = this.head;
+        while (double !== Node.end) {
+            firstHalfStack.push(single.data);
+            single = single.next;
+            double = double.next;
+
+            if (double === Node.end) { // mis-steps (therefore odd)
+                firstHalfStack.pop();
+            } else { // even so far
+                double = double.next;
+            }
+        }
+
+        while (single !== Node.end) {
+            if (firstHalfStack.pop() !== single.data) {
+                return false;
+            }
+            single = single.next;
+        }
+        return true;
+    }
+
+    show() {
+        let tracker = this.head;
+        while (tracker !== Node.end) {
+            console.log(tracker.data);
             tracker = tracker.next;
         }
     }
 
-    kthToLast(k) {
-        let length = 0;
-        let tracker = this.head;
-        while (tracker !== Node.tail) {
-            length++;
-            tracker = tracker.next;
+    getLoopStart() {
+        if (this.head === Node.end) {
+            return Node.end;
+        }
+        if (this.head === this.tail && this.tail.next === this.head) {
+            return this.head;
         }
 
-        if (k < 0 || k > length - 1) {
-            return null;
+        // Find out if the list has a loop and count the path from the start to the intersection
+        let slower = this.head;
+        let faster = this.head.next;
+        let toIntersectionSize = 0; // from start up to the intersection point (not including)
+        while (faster !== Node.end && faster !== slower) {
+            slower = slower.next;
+            toIntersectionSize++;
+            faster = faster.next;
+            if (faster === Node.end) {
+                break;
+            } else {
+                faster = faster.next;
+            }
         }
-        let targetIndex = length - 1 - k;
-        let index = 0;
-        tracker = this.head;
-        while (index < targetIndex) {
-            tracker = tracker.next;
-            index++;
+        if (faster === Node.end) {
+            return Node.end; // No loop
         }
-        return tracker.data;
+        const intersection = slower;
+
+        // Find the size of the loop (size - 1 really)
+        let loopSize = 0;
+        slower = intersection.next;
+        while (slower !== intersection) {
+            slower = slower.next;
+            loopSize++;
+        }
+
+        // Given there is a loop, find where it begins by treating the two pieces as intersecting lists
+        let diff = Math.abs(toIntersectionSize - loopSize);
+        let longer = this.head;
+        let shorter = intersection.next;
+        if (toIntersectionSize < loopSize) {
+            [longer, shorter] = [shorter, longer];
+        }
+        while (diff-- > 0) {
+            longer = longer.next;
+        }
+
+        while (longer !== intersection && shorter !== intersection) {
+            if (longer === shorter) {
+                return longer;
+            }
+            longer = longer.next;
+            shorter = shorter.next;
+        }
+
+        return intersection;
+    }
+
+    _addTailOne(data) {
+        if (this.head === Node.end) {
+            this.head = new Node(Node.end, data);
+            this.tail = this.head;
+        } else {
+            this.tail.next = new Node(Node.end, data);
+            this.tail = this.tail.next;
+        }
     }
 }
 
-class Node {
+export class Node {
     constructor(next, data) {
         this.next = next;
         this.data = data;
-        this.marked = false;
-    }
-
-    mark() {
-        this.marked = true;
-    }
-
-    isMarked() {
-        return this.marked;
     }
 }
 
-Node.tail = new Node(null);
+Node.end = new Node(null);
 
 
+export function sumListsReverse(a, b) {
+    if (a === Node.end) {
+        return a;
+    }
+    if (b === Node.end) {
+        return b;
+    }
+ 
+    let digitA = a.head;
+    let digitB = b.head;
+    let sum = new LinkedList();
+    let overflow = 0;
+    while (digitA !== Node.end || digitB !== Node.end) {
+        let nextSumDigit = (digitA !== Node.end ? digitA.data : 0)
+            + (digitB !== Node.end ? digitB.data : 0)
+            + overflow;
+        overflow = nextSumDigit >= 10 ? 1 : 0;
+        nextSumDigit -= overflow * 10;
+        sum.addTail(nextSumDigit);
+        digitA = digitA !== Node.end ? digitA.next : digitA;
+        digitB = digitB !== Node.end ? digitB.next : digitB;
+    }
+
+    if (overflow) {
+        sum.addTail(overflow);
+    }
+
+    return sum;
+}
 
 
+export function sumListsDirect(listA, listB) {
+    const lenA = listA.length;
+    const lenB = listB.length;
+    const result = new LinkedList();
+    let overflow = 0;
+    if (lenA <= lenB) {
+        overflow = doSumDirect(listA.head, lenA, listB.head, lenB, result);
+    } else {
+        overflow = doSumDirect(listB.head, lenB, listA.head, lenA, result);
+    }
+    if (overflow) {
+        result.addHead(1);
+    }
+    return result;
+}
 
-// import {LinkedList} from './list-duplicates';
+function doSumDirect(digitA, lenA, digitB, lenB, result) {
+    if (lenA === lenB && lenA === 0) {
+        return 0;
+    } else {
+        let overflow = 0;
+        let digitsSum = 0;
+        if (lenA < lenB) {
+            overflow = doSumDirect(digitA, lenA, digitB.next, lenB - 1, result);
+            digitsSum = digitB.data + overflow;
+        } else {
+            overflow = doSumDirect(digitA.next, lenA - 1, digitB.next, lenB - 1, result);
+            digitsSum = digitA.data + digitB.data + overflow;
+        }
+        if (digitsSum >= 10) {
+            result.addHead(digitsSum - 10);
+            return 1;
+        } else {
+            result.addHead(digitsSum);
+            return 0;
+        }
+    }
+}
 
-// const list = new LinkedList();
-// list.add(2);
-// list.add(3);
-// list.add(4);
-// list.add(5);
-// list.add(6);
 
-// const d = list.kthToLast(1);
-// console.log(`result: ${d}`);
+export function findIntersection(listA, listB) {
+    const lenA = listA.length;
+    const lenB = listB.length;
+    let diff = Math.abs(lenA - lenB);
+
+    let longer = listA.head;
+    let shorter = listB.head;
+    if (lenA < lenB) {
+        [longer, shorter] = [shorter, longer];
+    }
+    while (diff-- > 0) {
+        longer = longer.next;
+    }
+
+    while (longer !== Node.end && shorter !== Node.end) {
+        if (longer === shorter) {
+            return longer;
+        }
+        longer = longer.next;
+        shorter = shorter.next;
+    }
+
+    return Node.end;
+}
