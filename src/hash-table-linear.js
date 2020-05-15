@@ -1,5 +1,7 @@
 // A hashtable that operates on string keys and employes linear probing
-const MIN_SIZE = 11;
+const MIN_SIZE = 1;
+const ADD_THRESHOLD = 0.7;
+const REMOVE_THRESHOLD = 0.25;
 
 export class HashTableStringKey {
     constructor() {
@@ -13,8 +15,8 @@ export class HashTableStringKey {
             this._setElement(key, data);
             this.used++;
             // If more than 70% of slots are occupied in the current table, make it twice as large.
-            if (this.used > 0.7 * this.size) {
-                this.resize(true);
+            if (this.used > ADD_THRESHOLD * this.size) {
+                this._resize(true);
             }
         }
     }
@@ -36,8 +38,8 @@ export class HashTableStringKey {
             this.used--;
             // If less than half of slots are used in a table half as small as the current one,
             // reduce the table by half.
-            if (this.size > MIN_SIZE && this.used < .25 * this.size) {
-                this.resize(false);
+            if (this.size > MIN_SIZE && this.used < REMOVE_THRESHOLD * this.size) {
+                this._resize(false);
             }
         }
         return null;
@@ -52,7 +54,7 @@ export class HashTableStringKey {
         return find && find.data;
     }
     
-    resize(add) {
+    _resize(add) {
         const oldSize = this.size;
         const oldTable = this.table;
         if (add) {
@@ -74,7 +76,7 @@ export class HashTableStringKey {
             if (this.table[i]) {
                 console.log(`[${i}] = { key: "${this.table[i].key}",${''
                 } data: "${JSON.stringify(this.table[i].data)}",${''
-                } displaced: "${JSON.stringify(this.table[i].displaced)}" }`);
+                } displaced: "${this.table[i].displaced}" }`);
             } else {
                 console.log(`[${i}] = empty`);
             }

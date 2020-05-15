@@ -44,6 +44,72 @@ export class LinkedList {
         return tracker;
     }
 
+    search(predicate) {
+        let tracker = this.head;
+        while (tracker !== Node.end && !predicate(tracker.data)) {
+            tracker = tracker.next;
+        }
+        return tracker === Node.end ? null : tracker.data;
+    }
+
+    replace(predicate, data) {
+        let tracker = this.head;
+        while (tracker !== Node.end && !predicate(tracker.data)) {
+            tracker = tracker.next;
+        }
+        if (tracker !== Node.end) {
+            tracker.data = data;
+            return tracker;
+        }
+        return null;
+    }
+
+    delete(predicate) {
+        if (this.head === Node.end) {
+            return null;
+        }
+
+        if (predicate(this.head.data)) {
+            const deleted = this.head;
+            if (this.head === this.tail) {
+                this.head = this.tail = Node.end;
+            } else {
+                this.head = this.head.next;
+            }
+            return deleted;
+        } else {
+            let previous = this.head;
+            let tracker = this.head.next;
+            while (tracker !== Node.end && !predicate(tracker.data)) {
+                previous = tracker;
+                tracker = tracker.next;
+            }
+            if (tracker === Node.end) {
+                return null;
+            } else if (tracker === this.tail) {
+                const deleted = this.tail;
+                this.tail = previous;
+                previous.next = Node.end;
+                return deleted;
+            } else {
+                previous.next = tracker.next;
+                return tracker;
+            }
+        }
+    }
+
+    *[Symbol.iterator]() {
+        let tracker = this.head;
+        while (tracker !== Node.end) {
+            yield tracker.data;
+            tracker = tracker.next;
+        }
+    }
+
+    isEmpty() {
+        return this.head === Node.end;
+    }
+
     partition(x) {
         let tracker = this.head;
         while (tracker !== Node.end && tracker.data < x) {
