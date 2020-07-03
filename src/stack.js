@@ -60,3 +60,55 @@ export class MultiWayStack {
     //     }
     // }
 }
+
+
+
+export class MinStack {
+    constructor() {
+        this.space = [];
+    }
+
+    push(num) {
+        if (this.space.length) {
+            const {min: minIndex} = this._lastElement();
+            const min = this.space[minIndex].num;
+            if (num < min) {
+                this.space.push({
+                    num,
+                    min: this.space.length
+                });
+            } else {
+                this.space.push({
+                    num,
+                    min: minIndex
+                });
+            }
+        } else {
+            this.space.push({
+                num,
+                min: 0
+            });
+        }
+    }
+
+    pop() {
+        if (this.space.length) {
+            return this.space.pop();
+        } else {
+            throw new StackEmptyError();
+        }
+    }
+
+    min() {
+        if (this.space.length) {
+            const {min: minIndex} = this._lastElement();
+            return this.space[minIndex].num;
+        } else {
+            throw new StackEmptyError();
+        }
+    }
+
+    _lastElement() {
+        return this.space[this.space.length - 1];
+    }
+}

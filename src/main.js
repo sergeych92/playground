@@ -1,19 +1,20 @@
 import '../css/style.scss';
-import { MultiWayStack } from './stack';
+import { MinStack } from './stack';
 
-const stack = new MultiWayStack();
-stack.push('a', 1);
-stack.push('a1', 2);
-stack.push('b', 1);
-stack.push('b1', 2);
+const stack = new MinStack();
 
-stack.pop(1);
-stack.pop(2);
+stack.push(5);
+stack.push(7);
+stack.push(13);
+console.log(`Min: ${stack.min()}, should be 5`);
 
-stack.push('b', 1);
-stack.push('b1', 2);
+stack.pop();
+stack.push(13);
+console.log(`Min: ${stack.min()}, should be 5`);
 
-console.log(stack.pop(2));
-console.log(stack.pop(1));
-console.log(stack.pop(2));
-console.log(stack.pop(1));
+stack.push(8);
+stack.push(3);
+console.log(`Min: ${stack.min()}, should be 3`);
+
+stack.pop();
+console.log(`Min: ${stack.min()}, should be 5`);
