@@ -112,3 +112,98 @@ export class MinStack {
         return this.space[this.space.length - 1];
     }
 }
+
+
+
+export class StackIsFullException extends TypeError {}
+
+export class StackIndexOutOfBounds extends TypeError {}
+
+export class LimitedStack {
+    get isFull() {
+        return this.space.length >= this.limit;
+    }
+
+    get isEmpty() {
+        return this.space.length === 0;
+    }
+
+    constructor(limit = 5) {
+        this.space = [];
+        this.limit = limit;
+    }
+
+    push(data) {
+        if (this.isFull) {
+            throw new StackIsFullException();
+        } else {
+            this.space.push(data);
+        }
+    }
+
+    pop() {
+        if (this.space.length) {
+            return this.space.pop();
+        } else {
+            throw new StackEmptyError();
+        }
+    }
+
+    peek() {
+        if (this.space.length) {
+            return this.space[this.space.length - 1];
+        } else {
+            throw new StackEmptyError();
+        }
+    }
+}
+
+export class StackOfPlates {
+    get isEmpty() {
+        return !this.stacks.length;
+    }
+
+    constructor() {
+        this.stacks = [];
+    }
+
+    push(data) {
+        if (this.stacks.length) {
+            if (this.peek().isFull) {
+                const ns = new LimitedStack();
+                ns.push(data);
+                this.stacks.push(ns);
+            } else {
+                this.peek().push(data);
+            }
+        }
+    }
+
+    pop() {
+        const activeStack = this.peek();
+        const data = activeStack.pop();
+        if (activeStack.isEmpty) {
+            this.stacks.pop();
+        }
+        return data;
+    }
+
+    popAt(index) {
+        if (index < 0 || index >= this.stacks.length) {
+            throw new StackIndexOutOfBounds();
+        }
+        const data = this.stacks[index].pop();
+        if (this.stacks[index].isEmpty) {
+            this.stacks.splice(index, 1);
+        }
+        return data;
+    }
+
+    peek() {
+        if (this.stacks.length) {
+            return this.stacks[this.stacks.length - 1];
+        } else {
+            throw new StackEmptyError();
+        }
+    }
+}
