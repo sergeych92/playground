@@ -330,15 +330,22 @@ export class MyQueue {
     }
 
     dequeue() {
+        this._moveLeftToRight();
+        return this.stackRight.pop();
+    }
+
+    peek() {
+        this._moveLeftToRight();
+        return this.stackRight[this.stackRight.length - 1];
+    }
+
+    _moveLeftToRight() {
         if (this.isEmpty()) {
             throw new QueueEmptyException();
         } else {
-            if (this.stackRight.length) {
-                return this.stackRight.pop();
-            } else {
+            if (!this.stackRight.length) {
                 this.stackRight = this.stackLeft.reverse();
                 this.stackLeft = [];
-                return this.stackRight.pop();
             }
         }
     }
@@ -400,5 +407,82 @@ export function sortStack(stack) {
             }
         }
         itemsLeft -= sameItemsCount;
+    }
+}
+
+
+
+
+//---------------------------------------------------------------------------------
+export const ANIMAL_TYPES = {
+    DOG: 0,
+    CAT: 1
+};
+
+export class AnimalShelter {
+    constructor() {
+        this.id = 1;
+        this.cats = new MyQueue();
+        this.dogs = new MyQueue();
+    }
+
+    enqueue(name, type) {
+        if (type === ANIMAL_TYPES.DOG) {
+            this.dogs.enqueue({
+                name,
+                date: this.id++
+            });
+        } else {
+            this.cats.enqueue({
+                name,
+                date: this.id++
+            });
+        }
+    }
+
+    dequeueDog() {
+        const {name} = this.dogs.dequeue();
+        return {
+            type: ANIMAL_TYPES.DOG,
+            name
+        };
+    }
+
+    dequeueCat() {
+        const {name} = this.cats.dequeue();
+        return {
+            type: ANIMAL_TYPES.CAT,
+            name
+        };
+    }
+
+    dequeueAny() {
+        if (this.cats.isEmpty()) {
+            return {
+                type: ANIMAL_TYPES.DOG,
+                name: this.dogs.dequeue().name
+            };
+        } else if (this.dogs.isEmpty()) {
+            return {
+                type: ANIMAL_TYPES.CAT,
+                name: this.cats.dequeue().name
+            };
+        } else {
+            const oldestDog = this.dogs.peek();
+            const oldestCat = this.cats.peek();
+            if (oldestCat.date < oldestDog.date) {
+                this.cats.dequeue();
+                return {
+                    type: ANIMAL_TYPES.CAT,
+                    name: oldestCat.name
+                };
+            } else {
+                this.dogs.dequeue();
+                return {
+                    type: ANIMAL_TYPES.DOG,
+                    name: oldestDog.name
+                };
+            }
+        }
     }
 }

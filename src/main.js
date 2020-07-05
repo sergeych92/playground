@@ -1,16 +1,14 @@
 import '../css/style.scss';
-import { sortStack, LimitedStack } from './stack';
+import { AnimalShelter, ANIMAL_TYPES } from './stack';
 
-const stack = new LimitedStack(10);
-stack.push(1);
-stack.push(1);
-stack.push(1);
-stack.push(7);
-stack.push(2);
-stack.push(2);
-stack.push(13);
-stack.push(5);
+const shelter = new AnimalShelter();
+shelter.enqueue('Barrry', ANIMAL_TYPES.DOG);
+shelter.enqueue('Effy', ANIMAL_TYPES.DOG);
 
-sortStack(stack);
+shelter.enqueue('Tail', ANIMAL_TYPES.CAT);
+shelter.enqueue('Whiskers', ANIMAL_TYPES.CAT);
+shelter.enqueue('Paws', ANIMAL_TYPES.CAT);
 
-stack.debug();
+
+console.log(shelter.dequeueCat());
+console.log(shelter.dequeueCat());
