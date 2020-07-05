@@ -1,20 +1,33 @@
 import '../css/style.scss';
-import { MinStack } from './stack';
+import { StackOfPlates } from './stack';
 
-const stack = new MinStack();
+const stack = new StackOfPlates();
 
-stack.push(5);
-stack.push(7);
-stack.push(13);
-console.log(`Min: ${stack.min()}, should be 5`);
+const numbers = [
+    1, 2, 3, 4, 5,
+    6, 7, 8, 9, 10,
+    11, 12, 13, 14, 15,
+    16, 17, 18, 19, 20,
+    21, 22, 23, 24, 25
+];
+for (let n of numbers) {
+    stack.push(n);
+}
 
-stack.pop();
-stack.push(13);
-console.log(`Min: ${stack.min()}, should be 5`);
+const popAt = (count, position) => {
+    for (let i = 1; i <= count; i++) {
+        stack.popAt(position);
+    }
+}
 
-stack.push(8);
-stack.push(3);
-console.log(`Min: ${stack.min()}, should be 3`);
+const pop4 = position => popAt(4, position);
 
-stack.pop();
-console.log(`Min: ${stack.min()}, should be 5`);
+popAt(3, 0);
+pop4(1);
+pop4(2);
+stack.debug();
+
+console.log('--------------------------');
+
+stack.packUp();
+stack.debug();

@@ -156,6 +156,11 @@ export class LimitedStack {
             throw new StackEmptyError();
         }
     }
+
+    debug() {
+        const itemsStr = [...this.space].reverse().join(', ')
+        console.log(itemsStr);
+    }
 }
 
 export class StackOfPlates {
@@ -168,14 +173,12 @@ export class StackOfPlates {
     }
 
     push(data) {
-        if (this.stacks.length) {
-            if (this.peek().isFull) {
-                const ns = new LimitedStack();
-                ns.push(data);
-                this.stacks.push(ns);
-            } else {
-                this.peek().push(data);
-            }
+        if (!this.stacks.length || this.peek().isFull) {
+            const ns = new LimitedStack();
+            ns.push(data);
+            this.stacks.push(ns);
+        } else {
+            this.peek().push(data);
         }
     }
 
@@ -204,6 +207,61 @@ export class StackOfPlates {
             return this.stacks[this.stacks.length - 1];
         } else {
             throw new StackEmptyError();
+        }
+    }
+
+    packUp() {
+        const maxIndex = () => this.stacks.length - 1;
+        let feedIndex = 0;
+        let borrowIndex = 0;
+        const feed = () => this.stacks[feedIndex];
+        const borrow = () => this.stacks[borrowIndex];
+        if (this.stacks.length >= 2) {
+            while (feedIndex < maxIndex()) {
+                if (feed().isFull) {
+                    feedIndex++;
+                } else {
+                    borrowIndex = feedIndex + 1;
+                    let filledUp = false;
+                    while (borrowIndex <= maxIndex()) {
+                        const reverse = new LimitedStack();
+                        while (!borrow().isEmpty) {
+                            reverse.push(borrow().pop());
+                        }
+                        while (!feed().isFull && !reverse.isEmpty) {
+                            feed().push(reverse.pop());
+                        }
+                        if (feed().isFull) {
+                            if (reverse.isEmpty) {
+                                this.stacks.splice(feedIndex + 1, borrowIndex - feedIndex);
+                            } else {
+                                while (!reverse.isEmpty) {
+                                    borrow().push(reverse.pop());
+                                }
+                                const gapSize = borrowIndex - feedIndex - 1;
+                                if (gapSize > 0) {
+                                    this.stacks.splice(feedIndex + 1, gapSize);
+                                }
+                                feedIndex++;
+                            }
+                            filledUp = true;
+                            break;
+                        } else {
+                            borrowIndex++;
+                        }
+                    }
+                    if (!filledUp) {
+                        this.stacks.splice(feedIndex + 1);
+                    }
+                }
+            }
+        }
+    }
+
+    debug() {
+        for (let i = 0; i < this.stacks.length; i++) {
+            console.log(`Stack ${i}:`);
+            this.stacks[i].debug();
         }
     }
 }
