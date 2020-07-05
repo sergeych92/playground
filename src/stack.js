@@ -133,11 +133,22 @@ export class LimitedStack {
         this.limit = limit;
     }
 
-    push(data) {
+    push(...args) {
+        if (args.length === 0) {
+            throw new TypeError('push must be provided with at least one argument');
+        }
         if (this.isFull) {
             throw new StackIsFullException();
         } else {
-            this.space.push(data);
+            if (args.length === 1) {
+                if (Array.isArray(args[0])) {
+                    this.space.push(...args[0]);
+                } else {
+                    this.space.push(args[0]);
+                }
+            } else {
+                this.space.push(...args);
+            }
         }
     }
 
@@ -263,5 +274,131 @@ export class StackOfPlates {
             console.log(`Stack ${i}:`);
             this.stacks[i].debug();
         }
+    }
+}
+
+// TESTING CODE
+// const stack = new StackOfPlates();
+
+// const numbers = [
+//     1, 2, 3, 4, 5,
+//     6, 7, 8, 9, 10,
+//     11, 12, 13, 14, 15,
+//     16, 17, 18, 19, 20,
+//     21, 22, 23, 24, 25
+// ];
+// for (let n of numbers) {
+//     stack.push(n);
+// }
+
+// const popAt = (count, position) => {
+//     for (let i = 1; i <= count; i++) {
+//         stack.popAt(position);
+//     }
+// }
+
+// const pop4 = position => popAt(4, position);
+
+// popAt(3, 0);
+// pop4(1);
+// pop4(2);
+// stack.debug();
+
+// console.log('--------------------------');
+
+// stack.packUp();
+// stack.debug();
+
+
+
+
+// ---------------------------------------------------------------------
+export class QueueEmptyException extends TypeError {}
+
+export class MyQueue {
+    constructor() {
+        this.stackLeft = [];
+        this.stackRight = [];
+    }
+
+    enqueue(data) {
+        if (Array.isArray(data)) {
+            this.stackLeft.push(...data);
+        } else {
+            this.stackLeft.push(data);
+        }
+    }
+
+    dequeue() {
+        if (this.isEmpty()) {
+            throw new QueueEmptyException();
+        } else {
+            if (this.stackRight.length) {
+                return this.stackRight.pop();
+            } else {
+                this.stackRight = this.stackLeft.reverse();
+                this.stackLeft = [];
+                return this.stackRight.pop();
+            }
+        }
+    }
+
+    isEmpty() {
+        return this.stackLeft.length === 0 && this.stackRight.length === 0;
+    }
+}
+
+
+
+// --------------------------------------------------------------------------
+export function sortStack(stack) {
+    if (stack.isEmpty) {
+        return stack;
+    }
+
+    const holder = new LimitedStack(Number.MAX_SAFE_INTEGER);
+    let itemsCount = 0;
+    let itemsCountInit = false;
+    let itemsLeft = Number.MAX_SAFE_INTEGER;
+    while (itemsLeft) {
+        let maxItem = null;
+        let sameItemsCount = 0;
+
+        // Find the max item and the number of occurancies of that item
+        let takeItems = itemsLeft;
+        while (takeItems && !stack.isEmpty) {
+            const nextItem = stack.pop();
+            if (maxItem !== null) {
+                if (nextItem > maxItem) {
+                    maxItem = nextItem;
+                    sameItemsCount = 1;
+                } else if (nextItem === maxItem) {
+                    sameItemsCount++;
+                }
+            } else {
+                maxItem = nextItem;
+                sameItemsCount = 1;
+            }
+            holder.push(nextItem);
+            if (!itemsCountInit) {
+                itemsCount++;
+            }
+            takeItems--;
+        }
+        if (!itemsCountInit) {
+            itemsLeft = itemsCount;
+            itemsCountInit = true;
+        }
+        
+        // Move max items to the bottom of the stack and return the remaining items
+        const maxItemsArr = new Array(sameItemsCount).fill(maxItem);
+        stack.push(...maxItemsArr);
+        while (!holder.isEmpty) {
+            const nextItem = holder.pop();
+            if (nextItem !== maxItem) {
+                stack.push(nextItem);
+            }
+        }
+        itemsLeft -= sameItemsCount;
     }
 }
