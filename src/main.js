@@ -1,14 +1,17 @@
 import '../css/style.scss';
-import { AnimalShelter, ANIMAL_TYPES } from './stack';
+import { MinHeap } from './min-heap';
 
-const shelter = new AnimalShelter();
-shelter.enqueue('Barrry', ANIMAL_TYPES.DOG);
-shelter.enqueue('Effy', ANIMAL_TYPES.DOG);
+const minHeap = new MinHeap();
 
-shelter.enqueue('Tail', ANIMAL_TYPES.CAT);
-shelter.enqueue('Whiskers', ANIMAL_TYPES.CAT);
-shelter.enqueue('Paws', ANIMAL_TYPES.CAT);
+minHeap.add(7);
+minHeap.add(5);
+minHeap.add(10);
+minHeap.add(20);
+minHeap.add(17);
+minHeap.add(2);
+minHeap.add(40);
+minHeap.add(1);
 
+minHeap.popMin();
 
-console.log(shelter.dequeueCat());
-console.log(shelter.dequeueCat());
+console.log(minHeap.popMin());
