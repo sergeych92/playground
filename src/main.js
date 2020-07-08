@@ -1,17 +1,16 @@
 import '../css/style.scss';
-import { MinHeap } from './min-heap';
+import { buildTrie, findTypeaheadMatches } from './trie-typeahead';
 
-const minHeap = new MinHeap();
+const trieRoot = buildTrie([
+    'cat',
+    'call',
+    'man',
+    'many',
+    'manual',
+    'solid'
+]);
 
-minHeap.add(7);
-minHeap.add(5);
-minHeap.add(10);
-minHeap.add(20);
-minHeap.add(17);
-minHeap.add(2);
-minHeap.add(40);
-minHeap.add(1);
-
-minHeap.popMin();
-
-console.log(minHeap.popMin());
+const matches = findTypeaheadMatches(trieRoot, 'm');
+for (let match of matches) {
+    console.log(match);
+}
