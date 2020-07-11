@@ -10,7 +10,7 @@ const trieRoot = buildTrie([
     'solid'
 ]);
 
-const matches = findTypeaheadMatches(trieRoot, 'm');
+const matches = findTypeaheadMatches(trieRoot, 'c');
 for (let match of matches) {
     console.log(match);
 }
