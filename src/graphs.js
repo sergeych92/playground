@@ -32,3 +32,38 @@ export function hasPathBetween(nodeA, nodeB) {
 
     return false;
 }
+
+
+export function detectLoop(nodes) {
+    let remainingNodes = [...nodes];
+    const processedNodes = new Set();
+
+    while (remainingNodes.length) {
+        const startNode = remainingNodes.pop();
+        const trackedNodes = new Set();
+        const hasLoop = detectLoopInSubgraph(startNode, trackedNodes, processedNodes);
+        if (hasLoop) {
+            return true;
+        }
+        remainingNodes = remainingNodes.filter(n => !processedNodes.has(n));
+    }
+
+    return false;
+}
+
+function detectLoopInSubgraph(startNode, trackedNodes, processedNodes) {
+    if (trackedNodes.has(startNode)) {
+        return true;
+    } else {
+        trackedNodes.add(startNode);
+        processedNodes.add(startNode);
+        for (let child of startNode.adj) {
+            const hasLoop = detectLoopInSubgraph(child, trackedNodes, processedNodes);
+            if (hasLoop) {
+                return true;
+            }
+        }
+        trackedNodes.delete(startNode);
+        return false;
+    }
+}
