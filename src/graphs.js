@@ -99,7 +99,7 @@ export function buildBinarySearchTree(sortedAsc) {
 
 
 // Create a list of nodes for each level of a binary tree
-export function createListOfDepths(root) {
+export function createListOfDepthsDFS(root) {
     const levels = [];
     doCreateListOfDepths(root, 0, levels);
     return levels;
@@ -115,5 +115,56 @@ function doCreateListOfDepths(node, level, levels) {
     }
     if (node.right) {
         doCreateListOfDepths(node.right, level + 1, levels);
+    }
+}
+
+
+export function createListOfDepthsBFS(root) {
+    const queue = [{
+        node: root,
+        level: 0
+    }];
+    const levels = [];
+    while (queue.length) {
+        const {node, level} = queue.shift();
+        if (!Array.isArray(levels[level])) {
+            levels[level] = [];
+        }
+        levels[level].push(node);
+        if (node.left) {
+            queue.push({
+                node: node.left,
+                level: level + 1
+            });
+        }
+        if (node.right) {
+            queue.push({
+                node: node.right,
+                level: level + 1
+            });
+        }
+    }
+    return levels;
+}
+
+
+
+
+// print out a tree
+export function printTree(root) {
+    doPrintTree(root, 0);
+}
+
+const BLOCK_SIZE = 4;
+function doPrintTree(node, level) {
+    if (node) {
+        const str = ' '.repeat(level * BLOCK_SIZE) + node.value.toString().padStart(BLOCK_SIZE, ' ');
+        console.log(str);
+        if (node.right) {
+            doPrintTree(node.right, level + 1);
+        }
+        if (node.left) {
+            doPrintTree(node.left, level + 1);
+        }
     }
 }

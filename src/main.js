@@ -1,5 +1,5 @@
 import '../css/style.scss';
-import { buildBinarySearchTree, createListOfDepths } from './graphs';
+import { buildBinarySearchTree, createListOfDepthsBFS, printTree } from './graphs';
 
 // const a1 = {adj: []};
 // const a2 = {adj: []};
@@ -35,7 +35,4 @@ import { buildBinarySearchTree, createListOfDepths } from './graphs';
 const root = buildBinarySearchTree([
     1, 3, 7, 10, 20, 40, 51, 55
 ]);
-const levels = createListOfDepths(root);
-for (let lev = 0; lev < levels.length; lev++) {
-    console.log(`Level ${lev}: ${levels[lev]}`);
-}
+printTree(root);
