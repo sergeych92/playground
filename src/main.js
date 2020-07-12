@@ -1,16 +1,16 @@
 import '../css/style.scss';
-import { detectLoop } from './graphs';
+import { buildBinarySearchTree, createListOfDepths } from './graphs';
 
-const a1 = {adj: []};
-const a2 = {adj: []};
-const a3 = {adj: []};
-const a4 = {adj: []};
-const a5 = {adj: []};
-const a6 = {adj: []};
-const a7 = {adj: []};
-const a8 = {adj: []};
+// const a1 = {adj: []};
+// const a2 = {adj: []};
+// const a3 = {adj: []};
+// const a4 = {adj: []};
+// const a5 = {adj: []};
+// const a6 = {adj: []};
+// const a7 = {adj: []};
+// const a8 = {adj: []};
 
-const nodes = [a1, a2, a3, a4, a5, a6, a7, a8];
+// const nodes = [a1, a2, a3, a4, a5, a6, a7, a8];
 
 // 2 Loops
 // a1.adj.push(a2, a5);
@@ -23,14 +23,19 @@ const nodes = [a1, a2, a3, a4, a5, a6, a7, a8];
 // a8.adj.push(a4);
 
 // No loops
-a1.adj.push(a2);
-a2.adj.push(a3, a7);
-a3.adj.push(a4);
-a4.adj.push(a5);
-a5.adj.push(a6);
-a6.adj.push(a1);
-a7.adj.push(a8);
-a8.adj.push(a5);
+// a1.adj.push(a2);
+// a2.adj.push(a3, a7);
+// a3.adj.push(a4);
+// a4.adj.push(a5);
+// a5.adj.push(a6);
+// a6.adj.push(a1);
+// a7.adj.push(a8);
+// a8.adj.push(a5);
 
-const r = detectLoop(nodes);
-console.log(`Has loop: ${r}`);
+const root = buildBinarySearchTree([
+    1, 3, 7, 10, 20, 40, 51, 55
+]);
+const levels = createListOfDepths(root);
+for (let lev = 0; lev < levels.length; lev++) {
+    console.log(`Level ${lev}: ${levels[lev]}`);
+}
