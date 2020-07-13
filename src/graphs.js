@@ -156,15 +156,96 @@ export function printTree(root) {
 }
 
 const BLOCK_SIZE = 4;
-function doPrintTree(node, level) {
+function doPrintTree(node, level, left = null) {
     if (node) {
-        const str = ' '.repeat(level * BLOCK_SIZE) + node.value.toString().padStart(BLOCK_SIZE, ' ');
+        const str = ' '.repeat(level * BLOCK_SIZE)
+            + (left === true ? 'L' : (left === false ? 'R' : ''))
+            + node.value.toString().padStart(BLOCK_SIZE, ' ');
         console.log(str);
         if (node.right) {
-            doPrintTree(node.right, level + 1);
+            doPrintTree(node.right, level + 1, false);
         }
         if (node.left) {
-            doPrintTree(node.left, level + 1);
+            doPrintTree(node.left, level + 1, true);
         }
+    }
+}
+
+
+
+// Checks whether or not the tree is balanced;
+export function checkTreeIsBalanced(root) {
+    if (root.left && root.right) {
+        const left = checkTreeIsBalanced(root.left);
+        const right = checkTreeIsBalanced(root.right);
+        if (left.balanced && right.balanced) {
+            if (Math.abs(left.height - right.height) > 1) {
+                return {balanced: false};
+            } else {
+                return {
+                    balanced: true,
+                    height: Math.max(left.height, right.height) + 1
+                };
+            }
+        } else {
+            return {balanced: false};
+        }
+    } else if (root.left || root.right) {
+        const child = checkTreeIsBalanced(root.left || root.right);
+        if (child.balanced) {
+            return {
+                balanced: true,
+                height: child.height + 1  
+            }
+        } else {
+            return {balanced: false};
+        }
+    } else {
+        return {
+            balanced: true,
+            height: 1
+        };
+    }
+}
+
+
+
+// Validate that binary tree is a binary search tree
+export function validateBinarySearchTree(root) {
+    if (root.left || root.right) {
+        const subtree = {
+            valid: true,
+            min: root.value,
+            max: root.value
+        };
+        if (root.left) {
+            const left = validateBinarySearchTree(root.left);
+            if (left.valid) {
+                left.valid = left.valid && left.max <= root.value;
+            }
+            if (!left.valid) {
+                return {valid: false};
+            }
+            subtree.min = Math.min(subtree.min, left.min);
+            subtree.max = Math.max(subtree.max, left.max);
+        }
+        if (root.right) {
+            const right = validateBinarySearchTree(root.right);
+            if (right.valid) {
+                right.valid = right.valid && right.min >= root.value;
+            }
+            if (!right.valid) {
+                return {valid: false};
+            }
+            subtree.min = Math.min(subtree.min, right.min);
+            subtree.max = Math.max(subtree.max, right.max);
+        }
+        return subtree;
+    } else {
+        return {
+            min: root.value,
+            max: root.value,
+            valid: true
+        };
     }
 }

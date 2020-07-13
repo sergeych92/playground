@@ -1,5 +1,5 @@
 import '../css/style.scss';
-import { buildBinarySearchTree, createListOfDepthsBFS, printTree } from './graphs';
+import { printTree, BinaryNode, validateBinarySearchTree } from './graphs';
 
 // const a1 = {adj: []};
 // const a2 = {adj: []};
@@ -32,7 +32,17 @@ import { buildBinarySearchTree, createListOfDepthsBFS, printTree } from './graph
 // a7.adj.push(a8);
 // a8.adj.push(a5);
 
-const root = buildBinarySearchTree([
-    1, 3, 7, 10, 20, 40, 51, 55
-]);
+const subTree = new BinaryNode(30);
+subTree.left = new BinaryNode(18);
+subTree.right = new BinaryNode(35);
+
+const root = new BinaryNode(20);
+root.left = new BinaryNode(10);
+root.right = subTree;
+root.left.left = new BinaryNode(3);
+root.left.right = new BinaryNode(12);
+
 printTree(root);
+const result = validateBinarySearchTree(root);
+console.log(`Binary search tree`);
+console.log(result);
