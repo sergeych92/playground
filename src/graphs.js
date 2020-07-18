@@ -368,3 +368,41 @@ function buildReachabilityMatrix(node, matrix) {
         return reachableCombined;
     }
 }
+
+
+
+
+
+// Topological sort using reverse depth-first search
+export function topologicalSortRevDF(nodes) {
+    if (!nodes.length) {
+        return [];
+    }
+
+    const visited = new Set();
+    let remaining = [...nodes];
+    const sorted = [];
+
+    while (remaining.length) {
+        sorted.push(...topSortVisitAdj(remaining.pop(), visited));
+        remaining = remaining.filter(n => !visited.has(n));
+    }
+    return sorted;
+}
+
+function topSortVisitAdj(node, visited) {
+    if (visited.has(node)) {
+        return [];
+    } else {
+        visited.add(node);
+        if (Array.isArray(node.adj) && node.adj.length) {
+            const adjOrdered = node.adj
+                .filter(n => !visited.has(n))
+                .map(n => topSortVisitAdj(n, visited))
+                .flatMap(x => x);
+            return [...new Set(adjOrdered), node];   
+        } else {
+            return [node];
+        }
+    }
+}
