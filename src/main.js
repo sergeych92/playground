@@ -1,48 +1,51 @@
 import '../css/style.scss';
-import { printTree, BinaryNode, validateBinarySearchTree } from './graphs';
+import { topologicalSortReachability } from './graphs';
 
-// const a1 = {adj: []};
-// const a2 = {adj: []};
-// const a3 = {adj: []};
-// const a4 = {adj: []};
-// const a5 = {adj: []};
-// const a6 = {adj: []};
-// const a7 = {adj: []};
-// const a8 = {adj: []};
+const a = {label: 'a', adj: []};
+const b = {label: 'b', adj: []};
+const c = {label: 'c', adj: []};
+const d = {label: 'd', adj: []};
+const e = {label: 'e', adj: []};
+const f = {label: 'f', adj: []};
+const g = {label: 'g', adj: []};
+const h = {label: 'h', adj: []};
+const k = {label: 'k', adj: []};
+const l = {label: 'l', adj: []};
+const m = {label: 'm', adj: []};
+const p = {label: 'p', adj: []};
+const q = {label: 'q', adj: []};
+const n = {label: 'n', adj: []};
 
-// const nodes = [a1, a2, a3, a4, a5, a6, a7, a8];
-
-// 2 Loops
-// a1.adj.push(a2, a5);
-// a2.adj.push(a3);
-// a3.adj.push(a4);
-// a4.adj.push(a2);
-// a5.adj.push(a6, a7);
-// a6.adj.push(a7);
-// a7.adj.push(a5, a8);
-// a8.adj.push(a4);
+const nodes = [n, q, p, m, l, k, d, h, g, f, e, a, b, c];
 
 // No loops
-// a1.adj.push(a2);
-// a2.adj.push(a3, a7);
-// a3.adj.push(a4);
-// a4.adj.push(a5);
-// a5.adj.push(a6);
-// a6.adj.push(a1);
-// a7.adj.push(a8);
-// a8.adj.push(a5);
+b.adj.push(a, c);
+c.adj.push(a);
+d.adj.push(e);
+g.adj.push(b);
+k.adj.push(g);
+l.adj.push(g, h);
+h.adj.push(c);
+m.adj.push(k, l);
+p.adj.push(h);
+q.adj.push(p, n);
+n.adj.push(m, a);
 
-const subTree = new BinaryNode(30);
-subTree.left = new BinaryNode(18);
-subTree.right = new BinaryNode(35);
 
-const root = new BinaryNode(20);
-root.left = new BinaryNode(10);
-root.right = subTree;
-root.left.left = new BinaryNode(3);
-root.left.right = new BinaryNode(12);
+// const root = new BinaryNode(10);
+// root.right = new BinaryNode(40, root);
+// root.right.right = new BinaryNode(50, root.right);
+// root.right.right.left = new BinaryNode(45, root.right.right);
+// root.right.right.left.left = new BinaryNode(42, root.right.right.left);
 
-printTree(root);
-const result = validateBinarySearchTree(root);
-console.log(`Binary search tree`);
-console.log(result);
+// printTree(root);
+// const searchValue = 40;
+// const target = findNodeByValue(root, searchValue);
+// if (target) {
+//     console.log(`Node with the value of ${searchValue} is found.`);
+//     const next = findNodeSuccessor(target);
+//     console.log(`Node successor is ${next ? next.value : 'none'}`);    
+// }
+
+const sorted = topologicalSortReachability(nodes);
+console.log(`Sorted: ${sorted.map(n => n.label).join(', ')}`);

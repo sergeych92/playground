@@ -75,21 +75,22 @@ function detectLoopInSubgraph(startNode, trackedNodes, processedNodes) {
 
 // Build a binary search tree of a minimal height from a sorted array (ascending order)
 export class BinaryNode {
-    constructor(value) {
+    constructor(value, parent = null) {
         this.value = value;
         this.left = null;
         this.right = null;
+        this.parent = parent;
     }
 
     toString() { return this.value; }
 }
 
-export function buildBinarySearchTree(sortedAsc) {
+export function buildBinarySearchTree(sortedAsc, parent = null) {
     if (sortedAsc.length) {
         const middleIndex = Math.floor(sortedAsc.length / 2);
-        const node = new BinaryNode(sortedAsc[middleIndex]);
-        node.left = buildBinarySearchTree(sortedAsc.slice(0, middleIndex));
-        node.right = buildBinarySearchTree(sortedAsc.slice(middleIndex + 1));
+        const node = new BinaryNode(sortedAsc[middleIndex], parent);
+        node.left = buildBinarySearchTree(sortedAsc.slice(0, middleIndex), node);
+        node.right = buildBinarySearchTree(sortedAsc.slice(middleIndex + 1), node);
         return node;
     } else {
         return null;
@@ -247,5 +248,123 @@ export function validateBinarySearchTree(root) {
             max: root.value,
             valid: true
         };
+    }
+}
+
+
+
+// Find a node in a binary search tree
+export function findNodeByValue(root, value) {
+    if (root) {
+        if (root.value === value) {
+            return root;
+        } else{
+            if (value <= root.value) {
+                return findNodeByValue(root.left, value);
+            } else {
+                return findNodeByValue(root.right, value);
+            }
+        }   
+    } else {
+        return null;
+    }
+}
+
+
+
+
+// Find an in-order successor element of the given node in a binary search tree
+export function findNodeSuccessor(node) {
+    if (!node) {
+        return null;
+    }
+    if (node.right) {
+        return findMinElement(node.right);
+    } else if (node.parent) {
+        // find the first ancestor which is a left child of its parent and return the parent
+        return findFirstParentWithLeftChild(node);
+    } else {
+        return null; // There is no successor
+    }
+}
+
+function findMinElement(node) {
+    if (node.left) {
+        return findMinElement(node.left);
+    } else {
+        return node;
+    }
+}
+
+function findFirstParentWithLeftChild(node) {
+    if (node.parent) {
+        if (node.parent.left === node) {
+            return node.parent;
+        } else {
+            return findFirstParentWithLeftChild(node.parent);
+        }
+    } else {
+        return null;
+    }
+}
+
+
+
+
+// topological sort: reachability matrix + insertion sort
+export function topologicalSortReachability(nodes) {
+    if (!nodes.length) {
+        return [];
+    }
+    // Build the reachability matrix
+    const matrix = new Map();
+    let remaining = [...nodes];
+    while (remaining.length) {
+        buildReachabilityMatrix(remaining.pop(), matrix);
+        remaining = remaining.filter(n => !matrix.has(n));
+    }
+
+    // insert all of the nodes into a sorted array one by one using the matrix as a guide
+    remaining = [...nodes];
+    const sorted = [remaining.pop()];
+    while (remaining.length) {
+        const nextNode = remaining.pop();
+        let insertionPoint = null;
+        for (let i = 0; i < sorted.length; i++) {
+            const sortedCanReach = matrix.get(sorted[i]).has(nextNode);
+            const nextNodeCanReach = matrix.get(nextNode).has(sorted[i]);
+            if (sortedCanReach) {
+                insertionPoint = i;
+                break;
+            } else if (nextNodeCanReach) {
+                insertionPoint = i + 1;
+            }
+        }
+        if (insertionPoint !== null) {
+            sorted.splice(insertionPoint, 0,  nextNode);
+        } else {
+            sorted.unshift(nextNode);
+        }
+    }
+
+    return sorted;
+}
+
+function buildReachabilityMatrix(node, matrix) {
+    if (matrix.has(node)) {
+        return matrix.get(node);
+    } else {
+        const reachableSets = (node.adj || []).map(n => buildReachabilityMatrix(n, matrix));
+        const reachableCombined = new Set();
+        for (let nodeSet of reachableSets) {
+            for (let n of nodeSet) {
+                reachableCombined.add(n);
+            }
+        }
+        for (let adjNode of (node.adj || [])) {
+            reachableCombined.add(adjNode);
+        }
+        matrix.set(node, reachableCombined);
+        return reachableCombined;
     }
 }
