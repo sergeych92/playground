@@ -1,5 +1,5 @@
 import '../css/style.scss';
-import { topologicalSortReachability, topologicalSortRevDF } from './graphs';
+import { topologicalSortReachability, topologicalSortRevDF, topologicalSortByLevel } from './graphs';
 
 const a = {label: 'a', adj: []};
 const b = {label: 'b', adj: []};
@@ -47,5 +47,9 @@ n.adj.push(m, a);
 //     console.log(`Node successor is ${next ? next.value : 'none'}`);    
 // }
 
-const sorted = topologicalSortRevDF(nodes);
-console.log(`Sorted: ${sorted.map(n => n.label).join(', ')}`);
+const sorted = topologicalSortByLevel(
+    ['f', 'c', 'b', 'a', 'e', 'd', 'g'],
+    [['f', 'c'], ['f', 'b'], ['f', 'a'], ['c', 'a'], ['b', 'a'], ['a', 'e'], ['b', 'e'], ['d', 'g']]
+);
+console.log(`Sorted: ${sorted.join(', ')}`);
+

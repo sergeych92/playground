@@ -406,3 +406,70 @@ function topSortVisitAdj(node, visited) {
         }
     }
 }
+
+
+
+
+
+// topological sort level by level (like in the green book). No cycles please.
+// A -> B means that a compiles first, then B (arrow direction represents compilation order)
+export function topologicalSortByLevel(projects, dependencies) {
+    if (!projects.length) {
+        return [];
+    }
+    if (!dependencies.length) {
+        return projects;
+    }
+
+    const incoming = new Map();
+    const outgoing = new Map();
+
+    for (let [prev, next] of dependencies) {
+        if (incoming.has(next)) {
+            incoming.get(next).add(prev);
+        } else {
+            incoming.set(next, new Set([prev]));
+        }
+
+        if (outgoing.has(prev)) {
+            outgoing.get(prev).add(next);
+        } else {
+            outgoing.set(prev, new Set([next]));
+        }
+    }
+
+    let currentLevel = projects.filter(p => !incoming.has(p));
+    let nextLevel = [];
+    const sorted = [];
+    while (currentLevel.length) {
+        sorted.push(...currentLevel);
+
+        nextLevel = currentLevel
+            .map(p => outgoing.has(p) ? outgoing.get(p) : [])
+            .map(s => [...s])
+            .flatMap(p => p);
+        nextLevel = [...new Set(nextLevel)];
+        
+        for (let p of currentLevel) {
+            if (outgoing.has(p)) {
+                outgoing.delete(p);
+            }
+        }
+        for (let pn of nextLevel) {
+            if (incoming.has(pn)) {
+                for (let pc of currentLevel) {
+                    if (incoming.get(pn).has(pc)) {
+                        incoming.get(pn).delete(pc);
+                    }
+                }
+                if (incoming.get(pn).size === 0) {
+                    incoming.delete(pn);
+                }
+            }
+        }
+        
+        currentLevel = nextLevel.filter(p => !incoming.has(p));
+    }
+
+    return sorted;
+}
