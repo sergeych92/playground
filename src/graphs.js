@@ -544,6 +544,10 @@ export function findFirstCommonAncestorViaDFS(root, nodeA, nodeB) {
 }
 
 function containsNodesDFS(root, nodes, ancestorCont) {
+    if (ancestorCont.node) {
+        return 2;
+    }
+
     let left = 0;
     if (root.left) {
         left = containsNodesDFS(root.left, nodes, ancestorCont);
