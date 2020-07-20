@@ -413,6 +413,13 @@ function topSortVisitAdj(node, visited) {
 
 // topological sort level by level (like in the green book). No cycles please.
 // A -> B means that a compiles first, then B (arrow direction represents compilation order)
+
+// const sorted = topologicalSortByLevel(
+//     ['f', 'c', 'b', 'a', 'e', 'd', 'g'],
+//     [['f', 'c'], ['f', 'b'], ['f', 'a'], ['c', 'a'], ['b', 'a'], ['a', 'e'], ['b', 'e'], ['d', 'g']]
+// );
+// console.log(`Sorted: ${sorted.join(', ')}`);
+
 export function topologicalSortByLevel(projects, dependencies) {
     if (!projects.length) {
         return [];
@@ -472,4 +479,98 @@ export function topologicalSortByLevel(projects, dependencies) {
     }
 
     return sorted;
+}
+
+
+
+
+
+
+// Find the first common ancestor of two nodes in a binary tree using parent links
+export function findFirstCommonAncestorViaParent(nodeA, nodeB) {
+    if (nodeA === nodeB) {
+        return nodeA.parent ? nodeA.parent : null;
+    }
+
+    const nodeAOriginal = nodeA;
+    const nodeBOriginal = nodeB;
+
+    let nodeADepth = findNodeDepth(nodeA);
+    let nodeBDepth = findNodeDepth(nodeB);
+
+    // Make the deeper node go up the hierarchy until it levels with the other node 
+    if (nodeADepth !== nodeBDepth) {
+        let depthDiff = Math.abs(nodeADepth - nodeBDepth);
+        if (nodeADepth > nodeBDepth) {
+            while (depthDiff-- > 0) {
+                nodeA = nodeA.parent;
+            }
+        } else {
+            while (depthDiff-- > 0) {
+                nodeB = nodeB.parent;
+            }
+        }
+    }
+
+    // Go up the hierarchy one step at a time until both are the same node
+    while (nodeA !== nodeB) {
+        nodeA = nodeA.parent;
+        nodeB = nodeB.parent;
+    }
+
+    if (nodeA === nodeAOriginal || nodeA === nodeBOriginal) {
+        return nodeA.parent ? nodeA.parent : null;
+    } else {
+        return nodeA;
+    }
+}
+
+function findNodeDepth(node) {
+    let count = 0;
+    while (node.parent) {
+        count++;
+        node = node.parent;
+    }
+    return count;
+}
+
+
+
+// Find the first common ancestor of two nodes in a binary tree using depth-first search
+export function findFirstCommonAncestorViaDFS(root, nodeA, nodeB) {
+    const ancestorCont = {node: null};
+    containsNodesDFS(root, [nodeA, nodeB], ancestorCont);
+    return ancestorCont.node;
+}
+
+function containsNodesDFS(root, nodes, ancestorCont) {
+    let left = 0;
+    if (root.left) {
+        left = containsNodesDFS(root.left, nodes, ancestorCont);
+        if (left === 2) {
+            if (!ancestorCont.node) {
+                ancestorCont.node = root;
+            }
+            return left;
+        }
+    }
+
+    let right = 0;
+    if (root.right) {
+        right = containsNodesDFS(root.right, nodes, ancestorCont);
+        if (right === 2) {
+            if (!ancestorCont.node) {
+                ancestorCont.node = root;
+            }
+            return right;
+        }
+    }
+
+    if (left + right === 2) {
+        ancestorCont.node = root;
+        return 2;
+    } else {
+        const rootMatch = nodes.indexOf(root) > -1 ? 1 : 0;
+        return left + right + rootMatch;
+    }
 }
