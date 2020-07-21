@@ -1,5 +1,5 @@
 import '../css/style.scss';
-import { findNodeByValue, BinaryNode, printTree, findFirstCommonAncestorViaDFS } from './graphs';
+import { BinaryNode, printTree, allTreeSourcePermutations, weiveTwoArrays } from './graphs';
 
 // const a = {label: 'a', adj: []};
 // const b = {label: 'b', adj: []};
@@ -32,20 +32,20 @@ import { findNodeByValue, BinaryNode, printTree, findFirstCommonAncestorViaDFS }
 // n.adj.push(m, a);
 
 
-const root = new BinaryNode(10);
-root.right = new BinaryNode(40, root);
-root.right.right = new BinaryNode(50, root.right);
+const root = new BinaryNode(5);
+root.right = new BinaryNode(10, root);
+root.right.left = new BinaryNode(7, root.right);
+root.right.right = new BinaryNode(12, root.right);
+root.left = new BinaryNode(3, root);
+// root.left.right = new BinaryNode(4, root.left);
 
-root.right.right.left = new BinaryNode(45, root.right.right);
-root.right.right.left.left = new BinaryNode(42, root.right.right.left);
-
-root.right.right.right = new BinaryNode(60, root.right.right);
 
 printTree(root);
-const one = findNodeByValue(root, 60);
-const another = findNodeByValue(root, 42);
-if (one && another) {
-    console.log(`Both nodes are found.`);
-    const ancestor = findFirstCommonAncestorViaDFS(root, one, another);
-    console.log(`First ancestor is ${ancestor ? ancestor.value : 'none'}`);
+const permutations = allTreeSourcePermutations(root);
+// const permutations = weiveTwoArrays(
+//     ['a'],
+//     ['x', 'c']
+// );
+for (let p of permutations) {
+    console.log(p.join(', '));
 }

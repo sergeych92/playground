@@ -578,3 +578,59 @@ function containsNodesDFS(root, nodes, ancestorCont) {
         return left + right + rootMatch;
     }
 }
+
+
+
+
+// Print all possible arrays that could have lead to the creation of the given
+// binary search tree if the elements were inserted from left to right.
+export function allTreeSourcePermutations(root) {
+    if (!root) return [];
+
+    const left = allTreeSourcePermutations(root.left);
+    const right = allTreeSourcePermutations(root.right);
+
+    const results = [];
+    if (left.length && right.length) {
+        for (let leftPerm of left) {
+            for (let rightPerm of right) {
+                results.push(
+                    ...weiveTwoArrays(leftPerm, rightPerm).map(perm => [root.value, ...perm])
+                );
+            }
+        }
+    } else {
+        if (left.length || right.length) {
+            const childPerms = left.length ? left : right;
+            results.push(
+                ...childPerms.map(perm => [root.value, ...perm])
+            );
+        } else {
+            results.push([root.value]);
+        }
+    }
+    
+
+    return results;
+}
+
+
+export function weiveTwoArrays(a, b) {
+    if (!a.length || !b.length) {
+        return [
+            [...a, ...b]
+        ];
+    } else if (a.length === 1 && b.length === 1) {
+        return [
+            [...a, ...b],
+            [...b, ...a]
+        ];
+    } else {
+        const aLastIndex = a.length - 1;
+        const bLastIndex = b.length - 1;
+        return [
+            ...weiveTwoArrays(a.slice(0, aLastIndex), b).map(perm => [...perm, a[aLastIndex]]),
+            ...weiveTwoArrays(a, b.slice(0, bLastIndex)).map(perm => [...perm, b[bLastIndex]])
+        ];
+    }
+}
