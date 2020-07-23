@@ -615,6 +615,9 @@ export function allTreeSourcePermutations(root) {
 }
 
 
+
+
+// Compute all possible choices of poping items from two stacks into an array.
 export function weiveTwoArrays(a, b) {
     if (!a.length || !b.length) {
         return [
@@ -632,5 +635,79 @@ export function weiveTwoArrays(a, b) {
             ...weiveTwoArrays(a.slice(0, aLastIndex), b).map(perm => [...perm, a[aLastIndex]]),
             ...weiveTwoArrays(a, b.slice(0, bLastIndex)).map(perm => [...perm, b[bLastIndex]])
         ];
+    }
+}
+
+
+
+
+
+
+// Check if a tree is a subtree of another tree
+export function checkSubtree(tree, subtree) {
+    if (!tree || !subtree) {
+        return false;
+    }
+
+    const execution = {match: false};
+    const subtreeSize = calcTreeSize(subtree, null, execution);
+    calcTreeSize(tree, (subRoot, size) => {
+        if (size.depth === subtreeSize.depth && size.size === subtreeSize.size) {
+            return !compareTwoTrees(subRoot, subtree);
+        } else {
+            return true;
+        }
+    }, execution);
+    return execution.match;
+}
+
+function calcTreeSize(root, onNextSubtree, execution) {
+    const emptySize = {depth: 0, size: 0}; 
+    if (!root || execution.match) {
+        return emptySize;
+    }
+
+    const left = calcTreeSize(root.left, onNextSubtree, execution);
+    if (execution.match) {
+        return emptySize;
+    }
+    const right = calcTreeSize(root.right, onNextSubtree, execution);
+    if (execution.match) {
+        return emptySize;
+    }
+    
+    let size = null;
+    if (left.depth || right.depth) {
+        size = {
+            depth: Math.max(left.depth, right.depth) + 1,
+            size: left.size + right.size + 1
+        };
+    } else {
+        size = {
+            depth: 1,
+            size: 1
+        };
+    }
+
+    if (onNextSubtree) {
+        if (!onNextSubtree(root, size)) {
+            // stop the execution because whatever was being search has been found.
+            execution.match = true;
+        }
+    }
+
+    return size;
+}
+
+function compareTwoTrees(rootA, rootB) {
+    if (rootA && rootB) {
+        if (rootA.value === rootB.value) {
+            return compareTwoTrees(rootA.left, rootB.left)
+                && compareTwoTrees(rootA.right, rootB.right);             
+        } else {
+            return false;
+        }
+    } else {
+        return !rootA && !rootB;
     }
 }

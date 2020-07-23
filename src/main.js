@@ -1,5 +1,5 @@
 import '../css/style.scss';
-import { BinaryNode, printTree, allTreeSourcePermutations, weiveTwoArrays } from './graphs';
+import { BinaryNode, printTree, allTreeSourcePermutations, weiveTwoArrays, checkSubtree } from './graphs';
 
 // const a = {label: 'a', adj: []};
 // const b = {label: 'b', adj: []};
@@ -33,19 +33,17 @@ import { BinaryNode, printTree, allTreeSourcePermutations, weiveTwoArrays } from
 
 
 const root = new BinaryNode(5);
-root.right = new BinaryNode(10, root);
-root.right.left = new BinaryNode(7, root.right);
+root.right = new BinaryNode(3, root);
+root.right.left = new BinaryNode(1, root.right);
 root.right.right = new BinaryNode(12, root.right);
 root.left = new BinaryNode(3, root);
-// root.left.right = new BinaryNode(4, root.left);
+root.left.left = new BinaryNode(1, root.left);
+root.left.right = new BinaryNode(4, root.left);
 
 
-printTree(root);
-const permutations = allTreeSourcePermutations(root);
-// const permutations = weiveTwoArrays(
-//     ['a'],
-//     ['x', 'c']
-// );
-for (let p of permutations) {
-    console.log(p.join(', '));
-}
+const subtree = new BinaryNode(3);
+subtree.left = new BinaryNode(1, subtree);
+subtree.right = new BinaryNode(4, subtree);
+
+const hasSubtree = checkSubtree(root, subtree);
+console.log(`Has subtree: ${hasSubtree}`);
