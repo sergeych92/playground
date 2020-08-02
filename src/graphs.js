@@ -80,9 +80,14 @@ export class BinaryNode {
         this.left = null;
         this.right = null;
         this.parent = parent;
+        this.treeSize = 1;
     }
 
     toString() { return this.value; }
+
+    copyData(anotherNode) {
+        this.value = anotherNode.value;
+    }
 }
 
 export function buildBinarySearchTree(sortedAsc, parent = null) {
@@ -161,7 +166,7 @@ function doPrintTree(node, level, left = null) {
     if (node) {
         const str = ' '.repeat(level * BLOCK_SIZE)
             + (left === true ? 'L' : (left === false ? 'R' : ''))
-            + node.value.toString().padStart(BLOCK_SIZE, ' ');
+            + (node.value.toString() + '|' + node.treeSize.toString()).padStart(BLOCK_SIZE * 1.5, ' ');
         console.log(str);
         if (node.right) {
             doPrintTree(node.right, level + 1, false);
@@ -251,26 +256,26 @@ export function validateBinarySearchTree(root) {
     }
 }
 
-
-
-// Find a node in a binary search tree
-export function findNodeByValue(root, value) {
-    if (root) {
-        if (root.value === value) {
-            return root;
+function doFindNodeByValue(node, parent, value) {
+    if (node) {
+        if (node.value === value) {
+            return {node, parent};
         } else{
-            if (value <= root.value) {
-                return findNodeByValue(root.left, value);
+            if (value <= node.value) {
+                return doFindNodeByValue(node.left, node, value);
             } else {
-                return findNodeByValue(root.right, value);
+                return doFindNodeByValue(node.right, node, value);
             }
         }   
     } else {
         return null;
     }
+} 
+
+// Find a node in a binary search tree
+export function findNodeByValue(root, value) {
+    return doFindNodeByValue(root, null, value);
 }
-
-
 
 
 // Find an in-order successor element of the given node in a binary search tree

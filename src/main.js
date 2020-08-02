@@ -1,5 +1,6 @@
 import '../css/style.scss';
-import { BinaryNode, printTree, allTreeSourcePermutations, weiveTwoArrays, checkSubtree } from './graphs';
+import { BinaryNode, printTree } from './graphs';
+import { BinaryTree } from './binary-tree';
 
 // const a = {label: 'a', adj: []};
 // const b = {label: 'b', adj: []};
@@ -32,18 +33,35 @@ import { BinaryNode, printTree, allTreeSourcePermutations, weiveTwoArrays, check
 // n.adj.push(m, a);
 
 
-const root = new BinaryNode(5);
-root.right = new BinaryNode(3, root);
-root.right.left = new BinaryNode(1, root.right);
-root.right.right = new BinaryNode(12, root.right);
-root.left = new BinaryNode(3, root);
-root.left.left = new BinaryNode(1, root.left);
-root.left.right = new BinaryNode(4, root.left);
+// const root = new BinaryNode(5);
+// root.right = new BinaryNode(3, root);
+// root.right.left = new BinaryNode(1, root.right);
+// root.right.right = new BinaryNode(12, root.right);
+// root.left = new BinaryNode(3, root);
+// root.left.left = new BinaryNode(1, root.left);
+// root.left.right = new BinaryNode(4, root.left);
 
 
-const subtree = new BinaryNode(3);
-subtree.left = new BinaryNode(1, subtree);
-subtree.right = new BinaryNode(4, subtree);
+// const subtree = new BinaryNode(3);
+// subtree.left = new BinaryNode(1, subtree);
+// subtree.right = new BinaryNode(4, subtree);
 
-const hasSubtree = checkSubtree(root, subtree);
-console.log(`Has subtree: ${hasSubtree}`);
+
+
+const tree = new BinaryTree();
+tree.insert(10);
+tree.insert(5);
+tree.insert(17);
+tree.insert(20);
+tree.insert(30);
+tree.insert(19);
+
+printTree(tree.root);
+
+tree.delete(30);
+
+printTree(tree.root);
+
+tree.insert(30);
+
+printTree(tree.root);
